@@ -696,7 +696,14 @@ function toggleGame() {
 }
 
 // ===== GUITAR HUNT GAME =====
-var gState = null;
+var gState = null, gAudio = null;
+function playReward() {
+  if (gAudio) { gAudio.pause(); gAudio = null; }
+  var t = TRACKS[Math.floor(Math.random() * TRACKS.length)];
+  gAudio = new Audio(t.src);
+  gAudio.volume = 0.3;
+  gAudio.play().catch(function(){});
+}
 function buildGame() {
   var g = document.getElementById('gGrid'); g.innerHTML = '';
   var holes = [];
@@ -715,6 +722,7 @@ function buildGame() {
           d.textContent = '\uD83C\uDFB8';
           d.classList.add('guitar');
           gState.time += 2;
+          playReward();
           document.getElementById('gMsg').textContent = gState.found >= 2 ? 'You win!' : 'Found! +2 seconds';
         } else {
           d.textContent = '\uD83D\uDD73';
@@ -735,6 +743,7 @@ function updateGameUI() {
   document.getElementById('gTime').textContent = gState.time;
 }
 function startGame() {
+  if (gAudio) { gAudio.pause(); gAudio = null; }
   if (gState && gState.timer) { clearInterval(gState.timer); }
   buildGame();
   gState.active = true;
@@ -751,6 +760,7 @@ function startGame() {
 }
 function endGame(win) {
   if (!gState) return;
+  if (gAudio) { gAudio.pause(); gAudio = null; }
   gState.active = false;
   if (gState.timer) { clearInterval(gState.timer); gState.timer = null; }
   document.getElementById('gBtn').disabled = false;
