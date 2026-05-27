@@ -176,8 +176,9 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 .stems-method .btn-method:hover{background:#e0bb60}
 
 /* CHATBOT */
-.chat-inline{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--black);border:none;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:10px 24px;border-radius:4px;cursor:pointer;margin-bottom:12px;transition:all 0.2s}
-.chat-inline:hover{transform:translateY(-2px)}
+.chat-fab{position:fixed;bottom:28px;right:28px;z-index:99999;width:60px;height:60px;border-radius:50%;background:var(--gold);color:var(--black);border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.2s}
+.chat-fab:hover{transform:scale(1.08)}
+.chat-fab.hidden{display:none}
 .chat-panel{position:fixed;bottom:108px;right:28px;z-index:99999;width:400px;max-height:600px;background:var(--mid);border:1px solid var(--gold);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.6);display:none;flex-direction:column;overflow:hidden}
 .chat-panel.open{display:flex}
 .chat-header{background:var(--gold);color:var(--black);padding:16px 18px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}
@@ -222,6 +223,7 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
   .legacy-plugin{padding:60px 20px}
   .legacy-content h2{font-size:clamp(36px,10vw,52px)}
   .chat-panel{width:calc(100vw - 40px);right:20px;max-height:60vh;bottom:80px}
+  .chat-fab{bottom:20px;right:20px;width:56px;height:56px;font-size:24px}
 }
 
 @media(max-width:900px){
@@ -255,7 +257,6 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 <div class="hero">
   <div class="hero-left">
     <div class="hero-eyebrow">Nairobi Recording Studio</div>
-    <button class="chat-inline" id="chatInlineBtn" onclick="toggleChat()">&#x1F4AC; Ask the Assistant</button>
     <h1 class="hero-title">Tyrelm<em>Nation.</em></h1>
     <p class="hero-body">Recording. Mixing. Mastering. Production. Based in Nairobi.</p>
     <div>
@@ -518,6 +519,7 @@ window.onclick = function(event) {
 </script>
 
 <!-- CHATBOT -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">&#x1F4AC;</button>
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header">
     <span>Studio Assistant</span>
@@ -588,9 +590,9 @@ function sendMsg() {
 
 function toggleChat() {
   const panel = document.getElementById('chatPanel');
-  const btn = document.getElementById('chatInlineBtn');
+  const fab = document.getElementById('chatFab');
   const open = panel.classList.toggle('open');
-  if (btn) btn.style.display = open ? 'none' : 'inline-flex';
+  if (fab) fab.classList.toggle('hidden', open);
   if (open && !document.querySelector('#chatMsgs .msg')) {
     setTimeout(() => {
       addMsg('Hey there! 👋 I\'m your Tyrelm Studio assistant. Ask me anything about our services, pricing, or how to book a session.', 'bot');
