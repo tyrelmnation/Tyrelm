@@ -175,6 +175,28 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 .stems-method .btn-method{display:inline-block;background:var(--gold);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:12px 28px;text-decoration:none;transition:background 0.2s}
 .stems-method .btn-method:hover{background:#e0bb60}
 
+/* CHATBOT */
+.chat-btn{position:fixed;bottom:24px;right:24px;z-index:999;width:60px;height:60px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;font-size:26px;box-shadow:0 4px 20px rgba(201,168,76,0.4);transition:transform 0.2s}
+.chat-btn:hover{transform:scale(1.1)}
+.chat-btn.active{display:none}
+.chat-panel{position:fixed;bottom:100px;right:24px;z-index:999;width:340px;max-height:480px;background:var(--mid);border:1px solid var(--gold);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.6);display:none;flex-direction:column;overflow:hidden}
+.chat-panel.open{display:flex}
+.chat-header{background:var(--gold);color:var(--black);padding:16px 18px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}
+.chat-close{background:none;border:none;color:var(--black);font-size:22px;cursor:pointer;line-height:1}
+.chat-msgs{flex:1;padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth}
+.chat-msgs::-webkit-scrollbar{width:4px}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+.msg{max-width:88%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;word-wrap:break-word}
+.msg.bot{align-self:flex-start;background:#1a1a1a;color:var(--offwhite);border-bottom-left-radius:2px}
+.msg.user{align-self:flex-end;background:var(--gold);color:var(--black);border-bottom-right-radius:2px}
+.chat-input-wrap{display:flex;border-top:1px solid var(--border);padding:10px;gap:8px;background:var(--black)}
+.chat-input-wrap input{flex:1;background:var(--mid);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--offwhite);font-size:13px;outline:none;font-family:'DM Sans',sans-serif}
+.chat-input-wrap input::placeholder{color:rgba(242,237,228,0.3)}
+.chat-input-wrap button{background:var(--gold);color:var(--black);border:none;border-radius:6px;padding:10px 16px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;transition:background 0.2s}
+.chat-input-wrap button:hover{background:#e0bb60}
+.wa-fallback{margin-top:6px;font-size:12px;color:rgba(242,237,228,0.5);text-align:center}
+.wa-fallback a{color:var(--gold);text-decoration:none}
+
 @media(max-width:600px){
   .hero-left{padding:40px 20px}
   .hero-title{font-size:clamp(48px,12vw,68px)}
@@ -489,6 +511,90 @@ window.onclick = function(event) {
   const modal = document.getElementById('termsModal');
   if (event.target === modal) {
     modal.style.display = 'none';
+  }
+}
+</script>
+
+<!-- CHATBOT -->
+<button class="chat-btn" id="chatBtn" onclick="toggleChat()">&#x1F4AC;</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <span>Studio Assistant</span>
+    <button class="chat-close" onclick="toggleChat()">&times;</button>
+  </div>
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="chat-input-wrap">
+    <input type="text" id="chatInput" placeholder="Ask about services, pricing..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button onclick="sendMsg()">Send</button>
+  </div>
+</div>
+
+<script>
+const PHONE = '254706602914';
+
+const KB = [
+  { kw:['hi','hello','hey','yo','sup'], ans:'Hey! I\'m the Tyrelm Studio assistant. Ask me about music production, mixing, recording, pricing, or anything studio related.' },
+  { kw:['production','produce','beat','instrumental','music production'], ans:'<b>Music Production</b> &mdash; 20,000 KES per project. Includes beat creation, vocal arrangement, full song structuring.<br>Collab rate: 50/50 on composition &amp; streaming.<br>Extra: Performance track +2,000 KES, Stripped version +3,000 KES.<br><a href="javascript:openTerms(\'production\')" style="color:var(--gold)">View full Terms &amp; Credits &rarr;</a>' },
+  { kw:['mix','master','mixing','mastering','stereo','dolby','atmos'], ans:'<b>Mixing &amp; Mastering</b><br>Stereo Mix &amp; Master: 15,000 KES/track<br>Album deal: 12,000 KES/track<br>Dolby Atmos / Ambisonic: 25,000 KES/track<br>Mastering only: 5,000 KES/track<br>Delivered at 24-bit/48kHz WAV, up to 2 revision passes.<br><a href="javascript:openTerms(\'mixing\')" style="color:var(--gold)">View full Terms &amp; Credits &rarr;</a>' },
+  { kw:['track','record','recording','vocal','voice','session','engineering'], ans:'<b>Tracking / Recording</b><br>Engineering fee: 2,000 KES (Tyrelm\'s fee).<br>Studio space: from 1,000 KES/hr (budget) to 5,000 KES/hr (high-end).<br>Full session comping &amp; file delivery included.<br><a href="javascript:openTerms(\'tracking\')" style="color:var(--gold)">View full Terms &amp; Credits &rarr;</a>' },
+  { kw:['consult','consultation','advice','feedback','direction','pre-production'], ans:'<b>Audio Consultation</b> &mdash; 2,500 KES per session.<br>Covers mix feedback, arrangement review, pre-production planning &amp; release direction.<br>Remote or in-person. Send materials 12hrs in advance.<br><a href="javascript:openTerms(\'consultation\')" style="color:var(--gold)">View full Terms &amp; Credits &rarr;</a>' },
+  { kw:['price','pricing','cost','rate','how much','fee','kes'], ans:'<b>Pricing overview:</b><br>&bull; Music Production: 20,000 KES/project<br>&bull; Mix &amp; Master: 15,000 KES/track<br>&bull; Dolby Atmos: 25,000 KES/track<br>&bull; Mastering only: 5,000 KES/track<br>&bull; Tracking/Recording: 2,000 KES (engineering)<br>&bull; Studio space: 1,000&ndash;5,000 KES/hr<br>&bull; Audio Consultation: 2,500 KES/session<br><br>Ask me about any service for full details!' },
+  { kw:['book','booking','appointment','session','schedule','reserve'], ans:'Ready to book? Hit me on WhatsApp and I\'ll get you set up!<br><a href="https://wa.me/'+PHONE+'" target="_blank" style="color:var(--gold)">Book via WhatsApp &rarr;</a>' },
+  { kw:['contact','phone','number','call','reach','email'], ans:'<b>Contact Tyrelm</b><br>WhatsApp: <a href="https://wa.me/'+PHONE+'" target="_blank" style="color:var(--gold)">+254 706 602 914</a><br>Email: <a href="mailto:tyrellmatekwa@gmail.com" style="color:var(--gold)">tyrellmatekwa@gmail.com</a><br>Studio: Nairobi, Kenya' },
+  { kw:['where','location','nairobi','studio location','based'], ans:'Tyrelm Nation is based in <b>Nairobi, Kenya</b>. Recording studio options available depending on your budget (1,000&ndash;5,000 KES/hr).' },
+  { kw:['terms','credit','condition','rights','license','buyout','exclusive'], ans:'Check the Terms &amp; Credits for each service:<br><a href="javascript:openTerms(\'production\')" style="color:var(--gold)">Music Production</a><br><a href="javascript:openTerms(\'mixing\')" style="color:var(--gold)">Mixing &amp; Mastering</a><br><a href="javascript:openTerms(\'tracking\')" style="color:var(--gold)">Tracking / Recording</a><br><a href="javascript:openTerms(\'consultation\')" style="color:var(--gold)">Audio Consultation</a>' },
+  { kw:['stem','dropbox','upload','send file','collab','collaborate','collaboration'], ans:'<b>Send Stems</b><br>WhatsApp: quick voice notes &amp; clips<br>Email: tyrellmatekwa@gmail.com (full tracks)<br>Dropbox: <a href="https://www.dropbox.com/request/cq6xi9h8o504mm926l37" target="_blank" style="color:var(--gold)">Upload here</a><br>Format: 24-bit / 44&ndash;48kHz WAV. Reviews within 2&ndash;3 business days.' },
+  { kw:['plugin','legacy','reverb','delay','tysonics','free','download'], ans:'<b>Tysonics Legacy</b> &mdash; free reverb &amp; delay plugin.<br>Built for producers who want depth, space, and character.<br><a href="TYSONIX%20BUNDLE.rar" download style="color:var(--gold)">Download Legacy (Free Plugin) &rarr;</a>' },
+  { kw:['tyrelm','who','about','edwin','matekwa','nation'], ans:'<b>Tyrelm Nation</b> is a recording, mixing, mastering, and production studio based in Nairobi, founded by Edwin Matekwa (Tyrelm). Architectural Audio Frameworks.' },
+  { kw:['revision','revise','revise pass','revision rounds'], ans:'<b>Revisions:</b><br>&bull; Music Production: up to 3 revision rounds within 14 days of rough delivery.<br>&bull; Mixing &amp; Mastering: up to 2 passes included.' },
+  { kw:['cancellation','cancel','refund','deposit'], ans:'<b>Cancellation policy:</b> 24-hour notice required for tracking/recording sessions, or a 30% hold fee applies.' },
+];
+
+function addMsg(text, role) {
+  const el = document.createElement('div');
+  el.className = 'msg ' + role;
+  el.innerHTML = text;
+  document.getElementById('chatMsgs').appendChild(el);
+  el.scrollIntoView({ behavior: 'smooth' });
+}
+
+function findAnswer(input) {
+  const lower = input.toLowerCase();
+  for (const entry of KB) {
+    for (const kw of entry.kw) {
+      if (lower.includes(kw)) return entry.ans;
+    }
+  }
+  return null;
+}
+
+function sendMsg() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  addMsg(text, 'user');
+  input.value = '';
+  setTimeout(() => {
+    const ans = findAnswer(text);
+    if (ans) {
+      addMsg(ans, 'bot');
+    } else {
+      const wa = 'https://wa.me/' + PHONE + '?text=' + encodeURIComponent('Hey Tyrelm, I visited your studio page and have a question: ' + text);
+      addMsg('I don\'t have an answer for that yet. Let me connect you directly!<br><br><a href="' + wa + '" target="_blank" class="btn-gold" style="padding:10px 24px;font-size:14px;display:inline-block">Ask on WhatsApp &rarr;</a><div class="wa-fallback">Or email: <a href="mailto:tyrellmatekwa@gmail.com">tyrellmatekwa@gmail.com</a></div>', 'bot');
+    }
+  }, 300);
+}
+
+function toggleChat() {
+  const panel = document.getElementById('chatPanel');
+  const btn = document.getElementById('chatBtn');
+  const open = panel.classList.toggle('open');
+  btn.classList.toggle('active', open);
+  if (open && !document.querySelector('#chatMsgs .msg')) {
+    setTimeout(() => {
+      addMsg('Hey there! 👋 I\'m your Tyrelm Studio assistant. Ask me anything about our services, pricing, or how to book a session.', 'bot');
+    }, 400);
   }
 }
 </script>
