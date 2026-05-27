@@ -175,26 +175,27 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 .stems-method .btn-method{display:inline-block;background:var(--gold);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:12px 28px;text-decoration:none;transition:background 0.2s}
 .stems-method .btn-method:hover{background:#e0bb60}
 
-/* CHATBOT */
+/* CHATBOT — WhatsApp-style */
 .chat-fab{position:fixed;bottom:28px;right:28px;z-index:99999;width:60px;height:60px;border-radius:50%;background:var(--gold);color:var(--black);border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.2s}
 .chat-fab:hover{transform:scale(1.08)}
 .chat-fab.hidden{display:none}
-.chat-panel{position:fixed;bottom:108px;right:28px;z-index:99999;width:400px;max-height:600px;background:var(--mid);border:1px solid var(--gold);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.6);display:none;flex-direction:column;overflow:hidden}
+.chat-panel{position:fixed;bottom:108px;right:28px;z-index:99999;width:400px;max-height:600px;background:#0b141a;border:1px solid rgba(201,168,76,0.15);border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6);display:none;flex-direction:column;overflow:hidden}
 .chat-panel.open{display:flex}
-.chat-header{background:var(--gold);color:var(--black);padding:16px 18px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}
-.chat-close{background:none;border:none;color:var(--black);font-size:22px;cursor:pointer;line-height:1}
-.chat-msgs{flex:1;padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth}
+.chat-header{background:#101f26;color:var(--gold);padding:14px 18px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}
+.chat-close{background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;line-height:1;opacity:0.7}
+.chat-close:hover{opacity:1}
+.chat-msgs{flex:1;padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth;background:var(--black)}
 .chat-msgs::-webkit-scrollbar{width:4px}
 .chat-msgs::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
-.msg{max-width:88%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;word-wrap:break-word}
-.msg.bot{align-self:flex-start;background:#1a1a1a;color:var(--offwhite);border-bottom-left-radius:2px}
-.msg.user{align-self:flex-end;background:var(--gold);color:var(--black);border-bottom-right-radius:2px}
-.chat-input-wrap{display:flex;border-top:1px solid var(--border);padding:10px;gap:8px;background:var(--black)}
-.chat-input-wrap input{flex:1;background:var(--mid);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--offwhite);font-size:13px;outline:none;font-family:'DM Sans',sans-serif}
-.chat-input-wrap input::placeholder{color:rgba(242,237,228,0.3)}
-.chat-input-wrap button{background:var(--gold);color:var(--black);border:none;border-radius:6px;padding:10px 16px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;transition:background 0.2s}
+.msg{max-width:80%;padding:9px 14px;font-size:13.5px;line-height:1.5;word-wrap:break-word;position:relative}
+.msg.bot{align-self:flex-start;background:#202c33;color:#e9edef;border-radius:8px;border-top-left-radius:0}
+.msg.user{align-self:flex-end;background:var(--gold);color:var(--black);border-radius:8px;border-top-right-radius:0}
+.chat-input-wrap{display:flex;padding:10px 12px;gap:8px;background:#101f26}
+.chat-input-wrap input{flex:1;background:#1f2c33;border:none;border-radius:8px;padding:10px 12px;color:#e9edef;font-size:13.5px;outline:none;font-family:'DM Sans',sans-serif}
+.chat-input-wrap input::placeholder{color:rgba(233,237,239,0.4)}
+.chat-input-wrap button{background:var(--gold);color:var(--black);border:none;border-radius:8px;padding:10px 18px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;transition:background 0.2s}
 .chat-input-wrap button:hover{background:#e0bb60}
-.wa-fallback{margin-top:6px;font-size:12px;color:rgba(242,237,228,0.5);text-align:center}
+.wa-fallback{margin-top:4px;font-size:12px;color:rgba(233,237,239,0.5);text-align:center}
 .wa-fallback a{color:var(--gold);text-decoration:none}
 
 @media(max-width:600px){
@@ -522,7 +523,13 @@ window.onclick = function(event) {
 <button class="chat-fab" id="chatFab" onclick="toggleChat()">&#x1F4AC;</button>
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header">
-    <span>Studio Assistant</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px">🎧</div>
+      <div>
+        <div style="font-size:14px;line-height:1.2">Studio Assistant</div>
+        <div style="font-size:11px;opacity:0.6;font-family:'DM Sans',sans-serif;font-weight:300">online</div>
+      </div>
+    </div>
     <button class="chat-close" onclick="toggleChat()">&times;</button>
   </div>
   <div class="chat-msgs" id="chatMsgs"></div>
