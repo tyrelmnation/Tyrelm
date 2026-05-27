@@ -711,8 +711,7 @@ function playClick() {
 }
 function playBgMusic() {
   if (gAudio) { gAudio.pause(); gAudio = null; }
-  var t = TRACKS[Math.floor(Math.random() * TRACKS.length)];
-  gAudio = new Audio(t.src);
+  gAudio = new Audio(TRACKS[2].src);
   gAudio.volume = 0.12;
   gAudio.loop = true;
   gAudio.play().catch(function(){});
