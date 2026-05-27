@@ -608,7 +608,7 @@ window.onclick = function(event) {
     <button class="game-panel-close" onclick="toggleGame()">&times;</button>
   </div>
   <div class="game-panel-body">
-    <p class="game-sub">Find 2 guitars in 12 holes — 5 guesses, 14s</p>
+    <p class="game-sub">Find 2 guitars in 12 holes — 5 guesses, 10s</p>
     <div class="game-stats">
       <span>Guesses: <em id="gGuess">3</em></span>
       <span>Found: <em id="gFound">0</em></span>
@@ -720,7 +720,7 @@ function buildGame() {
   var g = document.getElementById('gGrid'); g.innerHTML = '';
   var holes = [];
   while (holes.length < 4) { var r = Math.floor(Math.random() * 12); if (holes.indexOf(r) === -1) holes.push(r); }
-  gState = { holes: holes, guesses: 5, found: 0, time: 14, timer: null, active: false };
+  gState = { holes: holes, guesses: 5, found: 0, time: 10, timer: null, active: false };
   for (var i = 0; i < 12; i++) {
     (function(idx) {
       var d = document.createElement('div'); d.className = 'game-hole'; d.id = 'hole' + idx;
