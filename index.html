@@ -199,22 +199,22 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 .wa-fallback a{color:var(--gold);text-decoration:none}
 
 /* STICKY MINI PLAYER */
-.mini-player{position:fixed;bottom:0;left:0;right:0;z-index:99998;background:#0f0f0f;border-top:1px solid rgba(201,168,76,0.15);display:flex;align-items:center;padding:8px 20px;gap:12px;height:52px}
+.mini-player{position:fixed;bottom:0;left:0;right:0;z-index:99998;background:var(--mid);border-top:1px solid var(--border);display:flex;align-items:center;padding:8px 20px;gap:12px;height:52px}
 .mini-player .mp-info{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
-.mini-player .mp-cover{width:32px;height:32px;border-radius:3px;background:var(--mid);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--gold)}
+.mini-player .mp-cover{width:32px;height:32px;border-radius:3px;background:var(--black);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--gold)}
 .mini-player .mp-cover img{width:100%;height:100%;object-fit:cover;border-radius:3px}
 .mini-player .mp-title{font-size:12px;color:var(--offwhite);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400}
 .mini-player .mp-artist{font-size:10px;color:rgba(242,237,228,0.4)}
 .mini-player .mp-controls{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.mini-player .mp-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:4px;line-height:1;transition:color 0.2s;display:flex;align-items:center;justify-content:center;width:28px;height:28px}
+.mini-player .mp-btn{background:none;border:none;color:rgba(242,237,228,0.5);cursor:pointer;font-size:16px;padding:4px;line-height:1;transition:color 0.2s;display:flex;align-items:center;justify-content:center;width:28px;height:28px}
 .mini-player .mp-btn:hover{color:var(--gold)}
 .mini-player .mp-btn.play{font-size:20px;color:var(--gold)}
 .mini-player .mp-btn.play:hover{color:#e0bb60}
-.mini-player .mp-progress{height:2px;background:#222;border-radius:1px;flex:1;min-width:40px;max-width:120px;cursor:pointer;position:relative}
+.mini-player .mp-progress{height:2px;background:rgba(255,255,255,0.08);border-radius:1px;flex:1;min-width:40px;max-width:120px;cursor:pointer;position:relative}
 .mini-player .mp-progress-fill{height:100%;background:var(--gold);border-radius:1px;width:0%;transition:width 0.1s}
-.mini-player .mp-time{font-size:10px;color:var(--dim);font-family:monospace;flex-shrink:0;min-width:60px;text-align:center}
+.mini-player .mp-time{font-size:10px;color:rgba(242,237,228,0.35);font-family:monospace;flex-shrink:0;min-width:60px;text-align:center}
 .mini-player .mp-vol{display:flex;align-items:center;gap:4px;flex-shrink:0}
-.mini-player .mp-vol input{width:50px;-webkit-appearance:none;height:2px;background:#222;border-radius:1px;outline:none;cursor:pointer}
+.mini-player .mp-vol input{width:50px;-webkit-appearance:none;height:2px;background:rgba(255,255,255,0.08);border-radius:1px;outline:none;cursor:pointer}
 .mini-player .mp-vol input::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--gold);border-radius:50%;cursor:pointer;border:none}
 
 @media(max-width:600px){
@@ -660,23 +660,24 @@ function playTrack(i) {
   document.getElementById('mpArtist').textContent = t.artist;
   const a = new Audio(t.src);
   a.volume = parseFloat(document.getElementById('mpVol').value) / 100;
-  a.play().catch(() => {});
+  a.play().catch(function(e) { document.getElementById('mpPlayBtn').textContent = '\u25B6'; console.log(e); });
   mpAudio = a;
-  a.ontimeupdate = () => {
+  a.ontimeupdate = function() {
     if (a.duration) {
-      const pct = (a.currentTime / a.duration) * 100;
+      var pct = (a.currentTime / a.duration) * 100;
       document.getElementById('mpProgress').style.width = pct + '%';
-      const fmt = s => { const m = Math.floor(s / 60); return String(m).padStart(2,'0') + ':' + String(Math.floor(s % 60)).padStart(2,'0'); };
+      function fmt(s) { var m = Math.floor(s / 60); return String(m).padStart(2,'0') + ':' + String(Math.floor(s % 60)).padStart(2,'0'); }
       document.getElementById('mpTime').textContent = fmt(a.currentTime) + ' / ' + fmt(a.duration);
     }
   };
-  a.onended = () => { nextTrack(); };
+  a.onerror = function() { document.getElementById('mpPlayBtn').textContent = '\u25B6'; document.getElementById('mpTitle').textContent = 'Playback unavailable'; };
+  a.onended = function() { nextTrack(); };
 }
 
 function togglePlay() {
   if (mpIdx === -1) { playTrack(0); return; }
   if (mpAudio && !mpAudio.paused) { mpAudio.pause(); document.getElementById('mpPlayBtn').textContent = '\u25B6'; return; }
-  if (mpAudio && mpAudio.paused) { mpAudio.play().catch(() => {}); document.getElementById('mpPlayBtn').textContent = '\u23F8'; return; }
+  if (mpAudio && mpAudio.paused) { mpAudio.play().catch(function() {}); document.getElementById('mpPlayBtn').textContent = '\u23F8'; return; }
   playTrack(mpIdx);
 }
 
