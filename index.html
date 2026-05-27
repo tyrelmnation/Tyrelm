@@ -608,7 +608,7 @@ window.onclick = function(event) {
     <button class="game-panel-close" onclick="toggleGame()">&times;</button>
   </div>
   <div class="game-panel-body">
-    <p class="game-sub">Find 2 guitars in 12 holes — 3 guesses, 10s</p>
+    <p class="game-sub">Find 2 guitars in 12 holes — 6 guesses, 18s</p>
     <div class="game-stats">
       <span>Guesses: <em id="gGuess">3</em></span>
       <span>Found: <em id="gFound">0</em></span>
@@ -697,33 +697,46 @@ function toggleGame() {
 
 // ===== GUITAR HUNT GAME =====
 var gState = null, gAudio = null;
+function playClick() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 600; osc.type = 'square';
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.06);
+  } catch(e) {}
+}
 function playBgMusic() {
   if (gAudio) { gAudio.pause(); gAudio = null; }
   var t = TRACKS[Math.floor(Math.random() * TRACKS.length)];
   gAudio = new Audio(t.src);
-  gAudio.volume = 1.0;
+  gAudio.volume = 0.12;
   gAudio.loop = true;
   gAudio.play().catch(function(){});
 }
 function buildGame() {
   var g = document.getElementById('gGrid'); g.innerHTML = '';
   var holes = [];
-  while (holes.length < 3) { var r = Math.floor(Math.random() * 12); if (holes.indexOf(r) === -1) holes.push(r); }
-  gState = { holes: holes, guesses: 3, found: 0, time: 10, timer: null, active: false };
+  while (holes.length < 4) { var r = Math.floor(Math.random() * 12); if (holes.indexOf(r) === -1) holes.push(r); }
+  gState = { holes: holes, guesses: 6, found: 0, time: 18, timer: null, active: false };
   for (var i = 0; i < 12; i++) {
     (function(idx) {
       var d = document.createElement('div'); d.className = 'game-hole'; d.id = 'hole' + idx;
       d.onclick = function() {
         if (!gState || !gState.active || d.classList.contains('revealed')) return;
         if (gState.guesses <= 0) return;
+        playClick();
         gState.guesses--;
         d.classList.add('revealed');
         if (gState.holes.indexOf(idx) !== -1) {
           gState.found++;
           d.textContent = '\uD83C\uDFB8';
           d.classList.add('guitar');
-          gState.time += 2;
-          document.getElementById('gMsg').textContent = gState.found >= 2 ? 'You win!' : 'Found! +2 seconds';
+          gState.time += 3;
+          document.getElementById('gMsg').textContent = gState.found >= 2 ? 'You win!' : 'Found! +3 seconds';
         } else {
           d.textContent = '\uD83D\uDD73';
           d.classList.add('empty');
