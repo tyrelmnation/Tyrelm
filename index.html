@@ -54,36 +54,39 @@ nav a.book-nav:hover{background:#e0bb60}
 .story-content p{font-size:15px;color:rgba(242,237,228,0.65);margin-bottom:18px;max-width:440px}
 .story-content p strong{color:var(--offwhite);font-weight:500}
 
-/* GAME */
-.game-section{padding:80px 64px;background:var(--mid);border-top:1px solid var(--border);text-align:center}
-.game-section h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,56px);margin-bottom:8px;color:var(--offwhite)}
-.game-section .sub{font-size:13px;color:rgba(242,237,228,0.45);margin-bottom:6px}
-.game-stats{display:flex;justify-content:center;gap:24px;margin-bottom:20px;font-size:13px}
-.game-stats span{color:rgba(242,237,228,0.6)}
+/* GAME — floating panel */
+.game-fab{position:fixed;bottom:96px;left:20px;z-index:99999;width:48px;height:48px;border-radius:50%;background:var(--black);color:var(--gold);border:1px solid var(--gold);font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.game-fab:hover{transform:scale(1.08);background:var(--mid)}
+.game-fab.hidden{display:none}
+.game-panel{position:fixed;bottom:156px;left:20px;z-index:99999;width:360px;background:var(--mid);border:1px solid var(--gold);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.6);display:none;flex-direction:column;overflow:hidden}
+.game-panel.open{display:flex}
+.game-panel-header{background:var(--black);color:var(--gold);padding:14px 18px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.game-panel-close{background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;line-height:1;opacity:0.7}
+.game-panel-close:hover{opacity:1}
+.game-panel-body{padding:20px;text-align:center}
+.game-sub{font-size:12px;color:rgba(242,237,228,0.5);margin-bottom:16px}
+.game-stats{display:flex;justify-content:center;gap:20px;margin-bottom:16px;font-size:12px}
+.game-stats span{color:rgba(242,237,228,0.5)}
 .game-stats em{color:var(--gold);font-style:normal;font-weight:600}
-.game-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:360px;margin:0 auto 20px}
-.game-hole{aspect-ratio:1;border-radius:50%;background:var(--black);border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;transition:all 0.3s;position:relative;overflow:hidden}
+.game-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:280px;margin:0 auto 16px}
+.game-hole{aspect-ratio:1;border-radius:50%;background:var(--black);border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:24px;transition:all 0.3s}
 .game-hole:hover{border-color:rgba(201,168,76,0.4)}
 .game-hole.revealed{background:var(--black);border-color:var(--gold);cursor:default;transform:scale(0.95)}
 .game-hole.revealed.guitar{border-color:var(--gold);box-shadow:0 0 12px rgba(201,168,76,0.2)}
 .game-hole.revealed.empty{border-color:rgba(255,255,255,0.06)}
-.game-hole .hole-inner{transition:all 0.3s}
-.game-btn{background:var(--gold);color:var(--black);border:none;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;padding:12px 40px;cursor:pointer;border-radius:4px;transition:all 0.2s}
+.game-btn{background:var(--gold);color:var(--black);border:none;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:10px 32px;cursor:pointer;border-radius:4px;transition:all 0.2s}
 .game-btn:hover{background:#e0bb60;transform:translateY(-2px)}
 .game-btn:disabled{opacity:0.3;cursor:default;transform:none}
-.game-msg{font-size:14px;color:var(--offwhite);margin-top:14px;min-height:22px}
+.game-msg{font-size:13px;color:var(--offwhite);margin-top:12px;min-height:20px}
 .game-msg.win{color:var(--gold)}
 .game-msg.lose{color:rgba(255,100,100,0.8)}
-.game-msg.info{color:rgba(242,237,228,0.5)}
+.game-msg.info{color:rgba(242,237,228,0.4)}
 
 @media(max-width:600px){
-  .game-section{padding:40px 16px}
-  .game-grid{max-width:280px;gap:8px}
-  .chat-panel{width:calc(100vw - 40px);right:20px;max-height:60vh;bottom:80px}
-  .chat-fab{bottom:76px;right:20px;width:56px;height:56px;font-size:24px}
-  .mini-player{padding:6px 10px;gap:8px;height:48px}
-  .mini-player .mp-progress{max-width:60px}
-  .mini-player .mp-vol{display:none}
+  .game-panel{width:calc(100vw - 40px);left:20px;bottom:140px}
+  .game-fab{bottom:76px;left:20px;width:48px;height:48px;font-size:20px}
+  .game-grid{max-width:240px;gap:6px}
+  .game-hole{font-size:20px}
 }
 
 @media(max-width:900px){
@@ -270,19 +273,6 @@ nav a.book-nav:hover{background:#e0bb60}
   </div>
 </section>
 
-<section class="game-section" id="game">
-  <h2>Guitar Hunt</h2>
-  <p class="sub">Find 2 guitars hidden in 12 holes — 3 guesses, 10 seconds</p>
-  <div class="game-stats">
-    <span>Guesses: <em id="gGuess">3</em></span>
-    <span>Found: <em id="gFound">0</em></span>
-    <span>Time: <em id="gTime">10</em>s</span>
-  </div>
-  <div class="game-grid" id="gGrid"></div>
-  <button class="game-btn" id="gBtn" onclick="startGame()">Start Game</button>
-  <div class="game-msg" id="gMsg"></div>
-</section>
-
 <section class="booking" id="book">
   <h2>Got a Project?<em>Let's Build.</em></h2>
   <p>Hit us on WhatsApp or email to book a session.</p>
@@ -411,6 +401,26 @@ window.onclick = function(event) {
   </div>
 </div>
 
+<!-- GUITAR HUNT -->
+<button class="game-fab" id="gameFab" onclick="toggleGame()">&#x1F3B8;</button>
+<div class="game-panel" id="gamePanel">
+  <div class="game-panel-header">
+    <span>Guitar Hunt</span>
+    <button class="game-panel-close" onclick="toggleGame()">&times;</button>
+  </div>
+  <div class="game-panel-body">
+    <p class="game-sub">Find 2 guitars in 12 holes — 3 guesses, 10s</p>
+    <div class="game-stats">
+      <span>Guesses: <em id="gGuess">3</em></span>
+      <span>Found: <em id="gFound">0</em></span>
+      <span>Time: <em id="gTime">10</em>s</span>
+    </div>
+    <div class="game-grid" id="gGrid"></div>
+    <button class="game-btn" id="gBtn" onclick="startGame()">Start Game</button>
+    <div class="game-msg" id="gMsg"></div>
+  </div>
+</div>
+
 <script>
 const PHONE = '254706602914';
 
@@ -479,6 +489,13 @@ function toggleChat() {
   }
 }
 
+function toggleGame() {
+  const panel = document.getElementById('gamePanel');
+  const fab = document.getElementById('gameFab');
+  const open = panel.classList.toggle('open');
+  if (fab) fab.classList.toggle('hidden', open);
+}
+
 // ===== GUITAR HUNT GAME =====
 var gState = null;
 function buildGame() {
@@ -489,8 +506,6 @@ function buildGame() {
   for (var i = 0; i < 12; i++) {
     (function(idx) {
       var d = document.createElement('div'); d.className = 'game-hole'; d.id = 'hole' + idx;
-      var inner = document.createElement('div'); inner.className = 'hole-inner';
-      d.appendChild(inner);
       d.onclick = function() {
         if (!gState || !gState.active || d.classList.contains('revealed')) return;
         if (gState.guesses <= 0) return;
@@ -498,11 +513,13 @@ function buildGame() {
         d.classList.add('revealed');
         if (gState.holes.indexOf(idx) !== -1) {
           gState.found++;
-          inner.textContent = '\uD83C\uDFB8';
+          d.textContent = '\uD83C\uDFB8';
+          d.classList.add('guitar');
           gState.time += 2;
-          document.getElementById('gMsg').textContent = gState.found >= 2 ? 'You win! \uD83C\uDFB8\uD83C\uDFB8' : 'Found! +2 seconds';
+          document.getElementById('gMsg').textContent = gState.found >= 2 ? 'You win!' : 'Found! +2 seconds';
         } else {
-          inner.textContent = '\uD83D\uDD73';
+          d.textContent = '\uD83D\uDD73';
+          d.classList.add('empty');
           document.getElementById('gMsg').textContent = 'Empty...';
         }
         updateGameUI();
@@ -540,7 +557,7 @@ function endGame(win) {
   document.getElementById('gBtn').disabled = false;
   document.getElementById('gBtn').textContent = 'Play Again';
   if (win) {
-    document.getElementById('gMsg').textContent = 'You win! \uD83C\uDFB8\uD83C\uDFB8 Found ' + gState.found + ' guitars!';
+    document.getElementById('gMsg').textContent = 'You win! Found ' + gState.found + ' guitars!';
     document.getElementById('gMsg').className = 'game-msg win';
   } else {
     var msg = gState.time <= 0 ? 'Time\'s up!' : 'Out of guesses!';
