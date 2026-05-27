@@ -147,7 +147,7 @@ nav a.book-nav:hover{background:#e0bb60}
 .contact-line a{color:var(--gold);text-decoration:none}
 
 /* FOOTER */
-footer{padding:48px 64px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+footer{padding:48px 64px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;padding-bottom:80px}
 footer img{height:28px;opacity:0.7}
 footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 
@@ -198,6 +198,25 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 .wa-fallback{margin-top:4px;font-size:12px;color:rgba(233,237,239,0.5);text-align:center}
 .wa-fallback a{color:var(--gold);text-decoration:none}
 
+/* STICKY MINI PLAYER */
+.mini-player{position:fixed;bottom:0;left:0;right:0;z-index:99998;background:#0f0f0f;border-top:1px solid rgba(201,168,76,0.15);display:flex;align-items:center;padding:8px 20px;gap:12px;height:52px}
+.mini-player .mp-info{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.mini-player .mp-cover{width:32px;height:32px;border-radius:3px;background:var(--mid);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--gold)}
+.mini-player .mp-cover img{width:100%;height:100%;object-fit:cover;border-radius:3px}
+.mini-player .mp-title{font-size:12px;color:var(--offwhite);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400}
+.mini-player .mp-artist{font-size:10px;color:rgba(242,237,228,0.4)}
+.mini-player .mp-controls{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.mini-player .mp-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:4px;line-height:1;transition:color 0.2s;display:flex;align-items:center;justify-content:center;width:28px;height:28px}
+.mini-player .mp-btn:hover{color:var(--gold)}
+.mini-player .mp-btn.play{font-size:20px;color:var(--gold)}
+.mini-player .mp-btn.play:hover{color:#e0bb60}
+.mini-player .mp-progress{height:2px;background:#222;border-radius:1px;flex:1;min-width:40px;max-width:120px;cursor:pointer;position:relative}
+.mini-player .mp-progress-fill{height:100%;background:var(--gold);border-radius:1px;width:0%;transition:width 0.1s}
+.mini-player .mp-time{font-size:10px;color:var(--dim);font-family:monospace;flex-shrink:0;min-width:60px;text-align:center}
+.mini-player .mp-vol{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.mini-player .mp-vol input{width:50px;-webkit-appearance:none;height:2px;background:#222;border-radius:1px;outline:none;cursor:pointer}
+.mini-player .mp-vol input::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--gold);border-radius:50%;cursor:pointer;border:none}
+
 @media(max-width:600px){
   .hero-left{padding:40px 20px}
   .hero-title{font-size:clamp(48px,12vw,68px)}
@@ -224,7 +243,10 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
   .legacy-plugin{padding:60px 20px}
   .legacy-content h2{font-size:clamp(36px,10vw,52px)}
   .chat-panel{width:calc(100vw - 40px);right:20px;max-height:60vh;bottom:80px}
-  .chat-fab{bottom:20px;right:20px;width:56px;height:56px;font-size:24px}
+  .chat-fab{bottom:76px;right:20px;width:56px;height:56px;font-size:24px}
+  .mini-player{padding:6px 10px;gap:8px;height:48px}
+  .mini-player .mp-progress{max-width:60px}
+  .mini-player .mp-vol{display:none}
 }
 
 @media(max-width:900px){
@@ -606,7 +628,82 @@ function toggleChat() {
     }, 400);
   }
 }
+
+// ===== STICKY MINI PLAYER =====
+const CDN = 'https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/';
+const TRACKS = [
+  {title:'We', artist:'Tyrelm', src:CDN+'BROKEN%20DIARY%20EP/WE.m4a'},
+  {title:'Reasons', artist:'Tyrelm', src:CDN+'BROKEN%20DIARY%20EP/REASONS%20master.m4a'},
+  {title:'Ghost', artist:'Tyrelm', src:CDN+'BROKEN%20DIARY%20EP/GHOST%20MASTER.m4a'},
+  {title:'Better Person', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/BETTERPERSONTyrell.wavMASTER.m4a'},
+  {title:'Be With Me', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/Be%20with%20me%20Master.m4a'},
+  {title:'Fade Away', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/FADE%20AWAY%20TYRELM.m4a'},
+  {title:'Him Song', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/HIM%20SONG%20TYRELM.m4a'},
+  {title:'Lifeline', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/LIFELINE.m4a'},
+  {title:'Lightning', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/LIGHTNING%20MASTER.m4a'},
+  {title:'No Love', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/NO%20LOVE%20MASTER.m4a'},
+  {title:'Real', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/REAL%20MASTER.m4a'},
+  {title:'See Me', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/SEE%20ME.m4a'},
+  {title:'Time And Space', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/TIME%20AND%20SPACE%20MASTER.m4a'},
+  {title:'Time', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/TIME%20TYRELM.m4a'},
+  {title:'With Me', artist:'Tyrelm', src:CDN+'TIME%20AND%20SPACE%20ALBUM/WITH%20ME%20OUTRO.m4a'},
+];
+let mpIdx = -1, mpAudio = null;
+
+function playTrack(i) {
+  const t = TRACKS[i];
+  if (!t) return;
+  mpIdx = i;
+  if (mpAudio) { mpAudio.pause(); mpAudio = null; }
+  document.getElementById('mpPlayBtn').textContent = '\u23F8';
+  document.getElementById('mpTitle').textContent = t.title;
+  document.getElementById('mpArtist').textContent = t.artist;
+  const a = new Audio(t.src);
+  a.volume = parseFloat(document.getElementById('mpVol').value) / 100;
+  a.play().catch(() => {});
+  mpAudio = a;
+  a.ontimeupdate = () => {
+    if (a.duration) {
+      const pct = (a.currentTime / a.duration) * 100;
+      document.getElementById('mpProgress').style.width = pct + '%';
+      const fmt = s => { const m = Math.floor(s / 60); return String(m).padStart(2,'0') + ':' + String(Math.floor(s % 60)).padStart(2,'0'); };
+      document.getElementById('mpTime').textContent = fmt(a.currentTime) + ' / ' + fmt(a.duration);
+    }
+  };
+  a.onended = () => { nextTrack(); };
+}
+
+function togglePlay() {
+  if (mpIdx === -1) { playTrack(0); return; }
+  if (mpAudio && !mpAudio.paused) { mpAudio.pause(); document.getElementById('mpPlayBtn').textContent = '\u25B6'; return; }
+  if (mpAudio && mpAudio.paused) { mpAudio.play().catch(() => {}); document.getElementById('mpPlayBtn').textContent = '\u23F8'; return; }
+  playTrack(mpIdx);
+}
+
+function nextTrack() { playTrack((mpIdx + 1) % TRACKS.length); }
+function prevTrack() { playTrack((mpIdx - 1 + TRACKS.length) % TRACKS.length); }
+
 </script>
+
+<div class="mini-player">
+  <div class="mp-info">
+    <div class="mp-cover">&#9835;</div>
+    <div>
+      <div class="mp-title" id="mpTitle">Tyrelm Nation</div>
+      <div class="mp-artist" id="mpArtist">Tap play to listen</div>
+    </div>
+  </div>
+  <div class="mp-controls">
+    <button class="mp-btn" onclick="prevTrack()">&#9664;&#65039;</button>
+    <button class="mp-btn play" id="mpPlayBtn" onclick="togglePlay()">&#9654;&#65039;</button>
+    <button class="mp-btn" onclick="nextTrack()">&#9654;&#65039;</button>
+  </div>
+  <div class="mp-progress" onclick="if(mpAudio&&mpAudio.duration){var r=event.offsetX/this.offsetWidth;mpAudio.currentTime=r*mpAudio.duration}"><div class="mp-progress-fill" id="mpProgress"></div></div>
+  <div class="mp-time" id="mpTime">--:-- / --:--</div>
+  <div class="mp-vol">
+    <input type="range" id="mpVol" min="0" max="100" value="70" oninput="if(mpAudio)mpAudio.volume=this.value/100">
+  </div>
+</div>
 
 </body>
 </html>
