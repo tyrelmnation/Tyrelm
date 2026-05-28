@@ -157,9 +157,9 @@ nav .nav-logout:hover{color:var(--gold);border-color:var(--gold-dim)}
     <label>Enter your name to access your tracks</label>
     <input type="text" id="loginName" placeholder="e.g. Koffee" autocomplete="off" autofocus>
     <button class="login-btn" id="loginBtn">View My Tracks</button>
-    <div style="margin-top:16px;font-size:10px;color:var(--dim);font-family:monospace;letter-spacing:1px">
-      <span id="dbStatus" style="color:#ff6b6b">&#9679; Dropbox not connected</span>
-      <span style="cursor:pointer;color:var(--gold);margin-left:8px" id="dbSettingsBtn">&#9881; Setup</span>
+    <button style="margin-top:16px;background:var(--gold);color:var(--black);border:none;border-radius:4px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;width:100%" id="connectBtn">Connect Dropbox</button>
+    <div style="font-size:10px;color:var(--dim);font-family:monospace;letter-spacing:1px;margin-top:8px">
+      <span id="connectStatus">&#9679; Not connected</span>
     </div>
     <div class="login-error" id="loginError"></div>
   </div>
@@ -268,6 +268,133 @@ try {
   firebase.auth().signInAnonymously().catch(function(){});
 } catch(e) { console.log('Firebase init fail', e); }
 
+// ===== OAUTH PKCE =====
+const CLIENT_ID = 'uqejhdped4gdo4r';
+const REDIRECT_URI = window.location.origin + window.location.pathname.replace(/\/$/, '');
+const SCOPES = 'files.metadata.read files.content.read';
+
+function base64url(buf) {
+  var bytes = new Uint8Array(buf);
+  var str = '';
+  for (var i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function generateCodeVerifier() {
+  var arr = new Uint8Array(64);
+  crypto.getRandomValues(arr);
+  return base64url(arr);
+}
+
+function sha256(plain) {
+  var encoder = new TextEncoder();
+  return crypto.subtle.digest('SHA-256', encoder.encode(plain));
+}
+
+function generateCodeChallenge(verifier) {
+  return sha256(verifier).then(function(buf) { return base64url(buf); });
+}
+
+function setTokens(access, refresh) {
+  if (access) localStorage.setItem('fp_at', access);
+  if (refresh) localStorage.setItem('fp_rt', refresh);
+}
+
+function getAccessToken() { return localStorage.getItem('fp_at'); }
+function getRefreshToken() { return localStorage.getItem('fp_rt'); }
+function clearTokens() { localStorage.removeItem('fp_at'); localStorage.removeItem('fp_rt'); }
+function isConnected() { return !!getRefreshToken(); }
+
+function startOAuth() {
+  var verifier = generateCodeVerifier();
+  generateCodeChallenge(verifier).then(function(challenge) {
+    localStorage.setItem('fp_cv', verifier);
+    var state = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+    localStorage.setItem('fp_state', state);
+    var url = 'https://www.dropbox.com/oauth2/authorize?client_id=' + CLIENT_ID +
+      '&response_type=code&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
+      '&token_access_type=offline&code_challenge_method=S256&code_challenge=' + challenge +
+      '&state=' + state + '&scope=' + encodeURIComponent(SCOPES);
+    window.location.href = url;
+  });
+}
+
+function exchangeCode(code, verifier) {
+  var body = 'code=' + encodeURIComponent(code) +
+    '&grant_type=authorization_code' +
+    '&client_id=' + CLIENT_ID +
+    '&code_verifier=' + encodeURIComponent(verifier) +
+    '&redirect_uri=' + encodeURIComponent(REDIRECT_URI);
+  return fetch('https://api.dropbox.com/oauth2/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body
+  }).then(function(r) { return r.json(); });
+}
+
+function refreshAccessToken() {
+  var rt = getRefreshToken();
+  if (!rt) return Promise.reject(new Error('No refresh token'));
+  var body = 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(rt) +
+    '&client_id=' + CLIENT_ID;
+  return fetch('https://api.dropbox.com/oauth2/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.access_token) {
+      setTokens(data.access_token, null);
+      return data.access_token;
+    }
+    throw new Error('Refresh failed');
+  });
+}
+
+function dropboxFetch(url, body) {
+  var token = getAccessToken();
+  if (!token) return Promise.reject(new Error('Not connected'));
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(function(r) {
+    if (r.status === 401) {
+      return refreshAccessToken().then(function(newToken) {
+        return fetch(url, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + newToken, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        }).then(function(r2) { return r2.json(); });
+      });
+    }
+    return r.json();
+  });
+}
+
+// Handle OAuth redirect callback
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var code = params.get('code');
+  var state = params.get('state');
+  if (code && state) {
+    var savedState = localStorage.getItem('fp_state');
+    var verifier = localStorage.getItem('fp_cv');
+    localStorage.removeItem('fp_state');
+    localStorage.removeItem('fp_cv');
+    if (state === savedState && verifier) {
+      exchangeCode(code, verifier).then(function(data) {
+        if (data.access_token && data.refresh_token) {
+          setTokens(data.access_token, data.refresh_token);
+        }
+        history.replaceState({}, '', window.location.pathname);
+        updateConnectStatus();
+      });
+    } else {
+      history.replaceState({}, '', window.location.pathname);
+    }
+  }
+})();
+
 // ===== STATE =====
 let clientName = '';
 let tracks = [];
@@ -277,88 +404,15 @@ let isPlaying = false;
 let fbTrackId = null;
 let fbTimeStamp = null;
 
-// ===== DROPBOX SETTINGS MODAL =====
-(function() {
-  var modal = document.createElement('div');
-  modal.id = 'dbModal';
-  modal.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(8,8,8,0.95);display:none;align-items:center;justify-content:center;padding:24px';
-  modal.innerHTML = '<div style="background:var(--mid);border:1px solid var(--gold);border-radius:4px;padding:32px;max-width:480px;width:100%;position:relative">' +
-    '<button id="dbModalClose" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;line-height:1">\u2715</button>' +
-    '<h3 style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--gold);margin-bottom:16px;letter-spacing:1px">Dropbox Setup</h3>' +
-    '<div style="font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:20px">' +
-      '1. Go to <a href="https://www.dropbox.com/developers/apps" target="_blank" style="color:var(--gold)">Dropbox Developer Console</a><br>' +
-      '2. Create an app with <strong>Scoped Access</strong> &rarr; <strong>Full Dropbox</strong><br>' +
-      '3. Under <strong>Permissions</strong>, enable <code>files.metadata.read</code> and <code>files.content.read</code><br>' +
-      '4. Generate an <strong>Access token</strong> and paste it below<br>' +
-      '5. Create a folder <strong>/Feed-Play/{ClientName}/</strong> with audio files' +
-    '</div>' +
-    '<label style="display:block;font-size:10px;color:var(--dim);letter-spacing:2px;margin-bottom:6px">DROPBOX ACCESS TOKEN</label>' +
-    '<input type="password" id="dbTokenInput" style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:3px;padding:12px;color:var(--offwhite);font-family:monospace;font-size:11px;outline:none;margin-bottom:12px" placeholder="sl.Ai4...">' +
-    '<button id="dbTokenSave" style="width:100%;background:var(--gold);color:var(--black);border:none;border-radius:3px;padding:12px;font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer">Save Token</button>' +
-    '<div id="dbTokenStatus" style="font-size:11px;margin-top:8px;min-height:16px;font-family:monospace;text-align:center"></div>' +
-  '</div>';
-  document.body.appendChild(modal);
-
-  document.getElementById('dbSettingsBtn').addEventListener('click', function() {
-    document.getElementById('dbTokenInput').value = localStorage.getItem('feedplay_db_token') || '';
-    document.getElementById('dbTokenStatus').textContent = '';
-    modal.style.display = 'flex';
-  });
-  document.getElementById('dbModalClose').addEventListener('click', function() { modal.style.display = 'none'; });
-  modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
-  document.getElementById('dbTokenSave').addEventListener('click', function() {
-    var token = document.getElementById('dbTokenInput').value.trim();
-    if (!token) { document.getElementById('dbTokenStatus').textContent = 'Please enter a token'; return; }
-    localStorage.setItem('feedplay_db_token', token);
-    document.getElementById('dbTokenStatus').textContent = '\u2713 Token saved!';
-    document.getElementById('dbTokenStatus').style.color = 'var(--green)';
-    updateDbStatus();
-    setTimeout(function() { modal.style.display = 'none'; }, 800);
-  });
-})();
-
-function updateDbStatus() {
-  var el = document.getElementById('dbStatus');
-  var token = localStorage.getItem('feedplay_db_token');
-  if (token) { el.textContent = '\u25CF Dropbox connected'; el.style.color = '#00ff88'; }
-  else { el.textContent = '\u25CF Dropbox not connected'; el.style.color = '#ff6b6b'; }
-}
-updateDbStatus();
-
 // ===== DROPBOX API =====
 // Folder structure: /Feed-Play/{ClientName}/*.m4a, *.mp3, *.wav, *.flac
 
-function getDropboxToken() {
-  return localStorage.getItem('feedplay_db_token');
-}
-
-function dropboxHeaders() {
-  var token = getDropboxToken();
-  if (!token) return null;
-  return {
-    'Authorization': 'Bearer ' + token,
-    'Content-Type': 'application/json'
-  };
-}
-
 function listDropboxFolder(path) {
-  var headers = dropboxHeaders();
-  if (!headers) return Promise.reject(new Error('No Dropbox token'));
-  return fetch('https://api.dropboxapi.com/2/files/list_folder', {
-    method: 'POST',
-    headers: headers,
-    body: JSON.stringify({ path: path, recursive: false })
-  }).then(function(r){ return r.json(); });
+  return dropboxFetch('https://api.dropboxapi.com/2/files/list_folder', { path: path, recursive: false });
 }
 
 function getDropboxTemporaryLink(path) {
-  var headers = dropboxHeaders();
-  if (!headers) return Promise.reject(new Error('No Dropbox token'));
-  return fetch('https://api.dropboxapi.com/2/files/get_temporary_link', {
-    method: 'POST',
-    headers: headers,
-    body: JSON.stringify({ path: path })
-  }).then(function(r){ return r.json(); });
+  return dropboxFetch('https://api.dropboxapi.com/2/files/get_temporary_link', { path: path });
 }
 
 function findClientFolder(name) {
@@ -401,12 +455,12 @@ function loadTracksForClient(name) {
       return results.filter(function(t) { return t !== null; });
     });
     }).catch(function(err) {
-      if (err.message === 'No Dropbox token') return [];
+      if (err.message === 'Not connected') return [];
       console.error('Dropbox error:', err);
       return [];
     });
   }).catch(function(err) {
-    if (err.message === 'No Dropbox token') return [];
+    if (err.message === 'Not connected') return [];
     console.error('Dropbox error:', err);
     return [];
   });
@@ -700,14 +754,31 @@ function showToast(msg) {
   setTimeout(function() { t.classList.remove('show'); }, 2500);
 }
 
-// ===== CHECK FOR EXISTING TOKEN =====
-(function() {
-  var token = localStorage.getItem('feedplay_db_token');
-  if (!token) {
-    // Show a notice about setup
-    console.log('Feed-Play: Set up your Dropbox token');
+// ===== CONNECT BUTTON & STATUS =====
+function updateConnectStatus() {
+  var el = document.getElementById('connectStatus');
+  if (isConnected()) {
+    el.textContent = '\u25CF Connected';
+    el.style.color = '#00ff88';
+    document.getElementById('connectBtn').textContent = 'Reconnect Dropbox';
+  } else {
+    el.textContent = '\u25CF Not connected';
+    el.style.color = '#ff6b6b';
+    document.getElementById('connectBtn').textContent = 'Connect Dropbox';
   }
-})();
+}
+updateConnectStatus();
+
+document.getElementById('connectBtn').addEventListener('click', function() {
+  if (isConnected()) {
+    if (confirm('Disconnect from Dropbox?')) {
+      clearTokens();
+      updateConnectStatus();
+    }
+  } else {
+    startOAuth();
+  }
+});
 </script>
 </body>
 </html>
