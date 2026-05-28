@@ -290,7 +290,7 @@ let fbTimeStamp = null;
       '2. Create an app with <strong>Scoped Access</strong> &rarr; <strong>Full Dropbox</strong><br>' +
       '3. Under <strong>Permissions</strong>, enable <code>files.metadata.read</code> and <code>files.content.read</code><br>' +
       '4. Generate an <strong>Access token</strong> and paste it below<br>' +
-      '5. Create a folder <strong>/Samplify/{ClientName}/</strong> with audio files' +
+      '5. Create a folder <strong>/Feed-Play/{ClientName}/</strong> with audio files' +
     '</div>' +
     '<label style="display:block;font-size:10px;color:var(--dim);letter-spacing:2px;margin-bottom:6px">DROPBOX ACCESS TOKEN</label>' +
     '<input type="password" id="dbTokenInput" style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:3px;padding:12px;color:var(--offwhite);font-family:monospace;font-size:11px;outline:none;margin-bottom:12px" placeholder="sl.Ai4...">' +
@@ -326,7 +326,7 @@ function updateDbStatus() {
 updateDbStatus();
 
 // ===== DROPBOX API =====
-// Folder structure: /Samplify/{ClientName}/*.m4a, *.mp3, *.wav, *.flac
+// Folder structure: /Feed-Play/{ClientName}/*.m4a, *.mp3, *.wav, *.flac
 
 function getDropboxToken() {
   return localStorage.getItem('feedplay_db_token');
@@ -362,7 +362,7 @@ function getDropboxTemporaryLink(path) {
 }
 
 function loadTracksForClient(name) {
-  var folder = '/Samplify/' + name;
+  var folder = '/Feed-Play/' + name;
   return listDropboxFolder(folder).then(function(data) {
     if (data.error) {
       if (data.error['.tag'] === 'path') {
@@ -686,7 +686,7 @@ function showToast(msg) {
   var token = localStorage.getItem('feedplay_db_token');
   if (!token) {
     // Show a notice about setup
-    console.log('Samplify: Set up your Dropbox token');
+    console.log('Feed-Play: Set up your Dropbox token');
   }
 })();
 </script>
