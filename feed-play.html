@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--black:#080808;--offwhite:#f2ede4;--gold:#c9a84c;--gold2:#8a6020;--mid:#111111;--border:rgba(201,168,76,0.2);--dim:rgba(242,237,228,0.35);--green:#00ff88}
@@ -485,6 +486,28 @@ function toggleTrack(idx) {
   var img = document.getElementById('artImg');
   img.className = '';
   document.getElementById('artPh').style.display = 'block';
+  // Extract embedded cover art
+  if (window.jsmediatags) {
+    jsmediatags.read(track.url, {
+      onSuccess: function(tag) {
+        var tags = tag.tags;
+        if (tags.picture) {
+          var pic = tags.picture;
+          var data = pic.data;
+          var base64 = '';
+          if (data instanceof Array) {
+            for (var i = 0; i < data.length; i++) base64 += String.fromCharCode(data[i]);
+          } else if (data instanceof Uint8Array) {
+            for (var i = 0; i < data.length; i++) base64 += String.fromCharCode(data[i]);
+          }
+          img.src = 'data:' + pic.format + ';base64,' + btoa(base64);
+          img.className = 'show';
+          document.getElementById('artPh').style.display = 'none';
+        }
+      },
+      onError: function(){}
+    });
+  }
   updatePlayerUI();
   loadFeedback(track.title);
   a.ontimeupdate = function() {
