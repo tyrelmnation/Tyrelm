@@ -361,16 +361,26 @@ function getDropboxTemporaryLink(path) {
   }).then(function(r){ return r.json(); });
 }
 
-function loadTracksForClient(name) {
-  var folder = '/Feed-Play/' + name;
-  return listDropboxFolder(folder).then(function(data) {
-    if (data.error) {
-      if (data.error['.tag'] === 'path') {
-        return [];  // Folder doesn't exist = no tracks
-      }
-      throw new Error(data.error_summary || 'Dropbox error');
-    }
+function findClientFolder(name) {
+  return listDropboxFolder('/Feed-Play').then(function(data) {
+    if (data.error) return null;
     var entries = data.entries || [];
+    var lower = name.toLowerCase();
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i]['.tag'] === 'folder' && entries[i].name.toLowerCase() === lower) {
+        return entries[i].path_lower;
+      }
+    }
+    return null;
+  });
+}
+
+function loadTracksForClient(name) {
+  return findClientFolder(name).then(function(folderPath) {
+    if (!folderPath) return [];
+    return listDropboxFolder(folderPath).then(function(data) {
+      if (data.error) return [];
+      var entries = data.entries || [];
     var audioExts = ['.m4a', '.mp3', '.wav', '.flac', '.ogg', '.aac', '.m4a'];
     var audioFiles = entries.filter(function(e) {
       if (e['.tag'] !== 'file') return false;
@@ -385,6 +395,11 @@ function loadTracksForClient(name) {
       }).catch(function(){ return null; });
     })).then(function(results) {
       return results.filter(function(t) { return t !== null; });
+    });
+    }).catch(function(err) {
+      if (err.message === 'No Dropbox token') return [];
+      console.error('Dropbox error:', err);
+      return [];
     });
   }).catch(function(err) {
     if (err.message === 'No Dropbox token') return [];
