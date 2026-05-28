@@ -62,8 +62,10 @@ nav .nav-logout:hover{color:var(--gold);border-color:var(--gold-dim)}
 .screen-now .lbl{font-size:8px;color:var(--dim);letter-spacing:2px;font-family:monospace;opacity:0.6}
 .screen-now .name{font-size:14px;font-weight:400;color:#e8e0d0;word-break:break-word}
 .screen-artist-name{font-size:9px;color:rgba(255,255,255,0.15);margin-bottom:2px;font-family:monospace;letter-spacing:1px}
-.screen-bar{height:3px;background:rgba(255,255,255,0.04);margin:4px 0;border-radius:1px;overflow:hidden;cursor:pointer}
-.screen-bar-fill{height:100%;width:0%;background:var(--gold);border-radius:1px;transition:width 0.1s}
+.screen-bar{height:14px;background:rgba(255,255,255,0.04);margin:6px 0;border-radius:2px;cursor:pointer;position:relative;touch-action:manipulation}
+.screen-bar-fill{height:100%;width:0%;background:var(--gold);border-radius:2px;pointer-events:none}
+.screen-bar::after{content:'';position:absolute;top:50%;right:-5px;width:12px;height:12px;background:var(--gold);border-radius:50%;transform:translateY(-50%);opacity:0;transition:opacity 0.15s}
+.screen-bar:hover::after,.screen-bar.dragging::after{opacity:1}
 .screen-time{font-size:8px;color:var(--dim);font-family:monospace;letter-spacing:1px;text-align:right;padding:1px 0}
 
 .console-controls{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;background:#181818;flex-wrap:wrap}
@@ -552,9 +554,25 @@ document.getElementById('btnForward').addEventListener('click', function() {
 document.getElementById('volSlider').addEventListener('input', function() {
   if (curAudio) curAudio.volume = this.value / 100;
 });
-document.getElementById('screenBar').addEventListener('click', function(e) {
+function seekTo(e) {
   if (!curAudio || !curAudio.duration) return;
-  curAudio.currentTime = ((e.clientX - this.getBoundingClientRect().left) / this.offsetWidth) * curAudio.duration;
+  var bar = document.getElementById('screenBar');
+  var rect = bar.getBoundingClientRect();
+  var x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+  curAudio.currentTime = Math.max(0, Math.min(1, x / rect.width)) * curAudio.duration;
+}
+document.getElementById('screenBar').addEventListener('click', seekTo);
+document.getElementById('screenBar').addEventListener('touchstart', function(e) {
+  this.classList.add('dragging');
+  seekTo(e);
+});
+document.addEventListener('touchmove', function(e) {
+  var bar = document.getElementById('screenBar');
+  if (bar.classList.contains('dragging')) seekTo(e);
+});
+document.addEventListener('touchend', function() {
+  var bar = document.getElementById('screenBar');
+  bar.classList.remove('dragging');
 });
 
 // ===== FEEDBACK =====
