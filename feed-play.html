@@ -583,20 +583,14 @@ function loadFeedback(trackTitle) {
   fbTimeStamp = null;
   document.getElementById('fbTimeBtn').classList.remove('active');
   document.getElementById('feedbackSection').style.display = 'block';
-  if (!FB_ENABLED) {
-    document.getElementById('fbList').innerHTML = '<div class="fb-empty">Feedback unavailable</div>';
-    document.getElementById('fbCount').textContent = '0 comments';
-    return;
-  }
+  if (!FB_ENABLED) return;
   var slug = (clientName + '_' + trackTitle).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'unknown';
   RTDB.ref('feedplay_feedback/' + slug).once('value').then(function(snap) {
     var data = snap.val();
     var comments = data ? Object.values(data) : [];
-    comments.sort(function(a, b) { return (a.time || 0) - (b.time || 0); });
+    comments.sort(function(a, b) { return (a.timestamp || 0) - (b.timestamp || 0); });
     renderFeedback(comments);
-  }).catch(function(){
-    document.getElementById('fbList').innerHTML = '<div class="fb-empty">Feedback unavailable</div>';
-  });
+  }).catch(function(){});
 }
 
 function renderFeedback(comments) {
@@ -629,31 +623,44 @@ document.getElementById('fbTimeBtn').addEventListener('click', function() {
 
 document.getElementById('fbSubmit').addEventListener('click', function() {
   var text = document.getElementById('fbInput').value.trim();
-  if (!text || !fbTrackId || !FB_ENABLED) return;
+  if (!text || !fbTrackId) return;
   var btn = this;
   btn.disabled = true;
   btn.textContent = 'Sending...';
-  var slug = (clientName + '_' + fbTrackId).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'unknown';
-  var comment = {
-    text: text,
-    clientName: clientName,
-    timestamp: fbTimeStamp,
-    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-  };
-  RTDB.ref('feedplay_feedback/' + slug).push(comment).then(function() {
-    document.getElementById('fbInput').value = '';
-    btn.disabled = false;
-    btn.textContent = 'Send Feedback';
-    fbTimeStamp = null;
-    document.getElementById('fbTimeBtn').classList.remove('active');
-    document.getElementById('fbTimeBtn').textContent = '\u9200 Mark Time';
-    showToast('Feedback sent!');
-    loadFeedback(fbTrackId);
-  }).catch(function() {
-    btn.disabled = false;
-    btn.textContent = 'Send Feedback';
-    showToast('Error sending feedback');
-  });
+  var timeStr = '';
+  if (fbTimeStamp != null) {
+    var m = Math.floor(fbTimeStamp / 60), s = Math.floor(fbTimeStamp % 60);
+    timeStr = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+  // Save to Firebase
+  if (FB_ENABLED) {
+    var slug = (clientName + '_' + fbTrackId).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'unknown';
+    var comment = {
+      text: text,
+      clientName: clientName,
+      timestamp: fbTimeStamp,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    };
+    RTDB.ref('feedplay_feedback/' + slug).push(comment).catch(function(){});
+  }
+  // Send via WhatsApp
+  var waMsg = '*Feed-Play Feedback*\n' +
+    'Artist: ' + clientName + '\n' +
+    'Track: ' + fbTrackId + '\n' +
+    (timeStr ? 'Time: ' + timeStr + '\n' : '') +
+    'Message: ' + text;
+  window.open('https://wa.me/254706602914?text=' + encodeURIComponent(waMsg), '_blank');
+  // Send via Email
+  window.open('mailto:tyrellmatekwa@gmail.com?subject=Feed-Play%20Feedback%20-%20' + encodeURIComponent(clientName + ' - ' + fbTrackId) + '&body=' + encodeURIComponent(waMsg), '_blank');
+  // Reset form
+  document.getElementById('fbInput').value = '';
+  btn.disabled = false;
+  btn.textContent = 'Send Feedback';
+  fbTimeStamp = null;
+  document.getElementById('fbTimeBtn').classList.remove('active');
+  document.getElementById('fbTimeBtn').textContent = '\u9200 Mark Time';
+  showToast('Saved + sent via WhatsApp & Email');
+  loadFeedback(fbTrackId);
 });
 
 // ===== HELPERS =====
