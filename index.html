@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tyrelm Nation â€” Music. Sound. Creativity.</title>
+<title>Tyrelm Nation  -  Music. Sound. Creativity.</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -182,7 +182,7 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 .stems-method .btn-method{display:inline-block;background:var(--gold);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:12px 28px;text-decoration:none;transition:background 0.2s}
 .stems-method .btn-method:hover{background:#e0bb60}
 
-/* CHATBOT â€” WhatsApp-style */
+/* CHATBOT  -  WhatsApp-style */
 .chat-fab{position:fixed;bottom:28px;right:28px;z-index:99999;width:60px;height:60px;border-radius:50%;background:var(--gold);color:var(--black);border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.2s}
 .chat-fab:hover{transform:scale(1.08)}
 .chat-fab.hidden{display:none}
@@ -224,7 +224,7 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 .mini-player .mp-vol input{width:50px;-webkit-appearance:none;height:2px;background:#222;border-radius:1px;outline:none;cursor:pointer}
 .mini-player .mp-vol input::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--gold);border-radius:50%;cursor:pointer;border:none}
 
-/* GAME â€” floating panel */
+/* GAME  -  floating panel */
 .game-fab{position:fixed;bottom:96px;left:20px;z-index:99999;width:48px;height:48px;border-radius:50%;background:var(--black);color:var(--gold);border:1px solid var(--gold);font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;transition:all 0.2s}
 .game-fab:hover{transform:scale(1.08);background:var(--mid)}
 .game-fab.hidden{display:none}
@@ -368,24 +368,53 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 
 /* TESTIMONIALS FB-STYLE */
 .bio-testimonials{border-top:1px solid var(--border);padding-top:32px}
-.bio-testimonials h3{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--gold);margin-bottom:8px;letter-spacing:1px}
+.bio-testimonials h3{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--gold);margin-bottom:4px;letter-spacing:1px}
 .bio-testimonials p.bio-test-sub{font-size:13px;color:rgba(242,237,228,0.4);margin-bottom:28px}
-.test-form{display:flex;gap:12px;margin-bottom:32px}
-.test-form input,.test-form textarea{background:#1a1a1a;border:1px solid var(--border);border-radius:6px;padding:12px 14px;color:var(--offwhite);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.test-count{font-size:12px;color:rgba(242,237,228,0.35);margin-bottom:20px;letter-spacing:0.5px}
+.test-form{display:flex;gap:10px;margin-bottom:28px}
+.test-form input,.test-form textarea{background:#1a1a1a;border:1px solid var(--border);border-radius:6px;padding:10px 14px;color:var(--offwhite);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
 .test-form input:focus,.test-form textarea:focus{border-color:var(--gold)}
-.test-form input{flex:0 0 140px}
-.test-form textarea{flex:1;resize:none;min-height:44px;line-height:1.4}
-.test-form button{background:var(--gold);color:var(--black);border:none;border-radius:6px;padding:0 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;transition:background 0.2s;white-space:nowrap}
+.test-form input{flex:0 0 130px}
+.test-form textarea{flex:1;resize:none;min-height:40px;line-height:1.4}
+.test-form button{background:var(--gold);color:var(--black);border:none;border-radius:6px;padding:0 22px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;transition:background 0.2s;white-space:nowrap}
 .test-form button:hover{background:#e0bb60}
 .test-form button:disabled{opacity:0.4;cursor:default}
-.test-list{display:flex;flex-direction:column;gap:16px}
-.test-item{background:#111;border:1px solid var(--border);border-radius:8px;padding:16px}
-.test-item-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.test-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;flex-shrink:0}
-.test-name{font-size:14px;font-weight:500;color:var(--gold)}
-.test-date{font-size:11px;color:rgba(242,237,228,0.3);margin-left:auto}
-.test-text{font-size:14px;color:rgba(242,237,228,0.7);line-height:1.6;word-break:break-word}
+.test-list{display:flex;flex-direction:column;gap:12px}
+.test-item{background:#111;border:1px solid var(--border);border-radius:8px;padding:14px 16px;position:relative}
+.test-item:hover .test-delete{opacity:0.4}
+.test-delete{position:absolute;top:8px;right:10px;font-size:14px;color:rgba(242,237,228,0.2);cursor:pointer;opacity:0;transition:opacity 0.2s;background:none;border:none;line-height:1;font-family:sans-serif}
+.test-delete:hover{opacity:1!important;color:var(--gold)}
+.test-item-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.test-avatar{width:34px;height:34px;border-radius:50%;color:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;flex-shrink:0;font-weight:500}
+.test-name{font-size:13px;font-weight:600;color:var(--offwhite)}
+.test-date{font-size:11px;color:rgba(242,237,228,0.25);margin-left:auto}
+.test-text{font-size:14px;color:rgba(242,237,228,0.7);line-height:1.5;word-break:break-word;margin-bottom:8px}
+.test-actions{display:flex;align-items:center;gap:16px;padding-top:6px;border-top:1px solid rgba(242,237,228,0.06)}
+.test-like{display:flex;align-items:center;gap:4px;background:none;border:none;color:rgba(242,237,228,0.3);font-size:12px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.test-like:hover{color:var(--gold)}
+.test-like.liked{color:#e25555}
+.test-like svg{width:14px;height:14px;fill:currentColor}
+.test-reply-btn{background:none;border:none;color:rgba(242,237,228,0.3);font-size:12px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.test-reply-btn:hover{color:var(--gold)}
+.test-reply-form{display:none;margin-top:10px;margin-left:44px;gap:8px}
+.test-reply-form.open{display:flex}
+.test-reply-form input{background:#1a1a1a;border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--offwhite);font-size:12px;font-family:'DM Sans',sans-serif;outline:none;flex:1;transition:border-color 0.2s}
+.test-reply-form input:focus{border-color:var(--gold)}
+.test-reply-form button{background:var(--gold);color:var(--black);border:none;border-radius:6px;padding:0 14px;font-family:'Bebas Neue',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap;transition:background 0.2s}
+.test-reply-form button:hover{background:#e0bb60}
+.test-replies{margin-left:44px;margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.test-reply{background:rgba(255,255,255,0.02);border-radius:6px;padding:8px 12px;display:flex;flex-direction:column;gap:2px}
+.test-reply .test-reply-name{font-size:12px;font-weight:600;color:var(--gold)}
+.test-reply .test-reply-text{font-size:13px;color:rgba(242,237,228,0.6);line-height:1.4}
+.test-reply .test-reply-date{font-size:10px;color:rgba(242,237,228,0.2)}
 .test-empty{text-align:center;padding:40px 20px;font-size:14px;color:rgba(242,237,228,0.3);border:1px dashed var(--border);border-radius:8px}
+
+@media(max-width:700px){
+  .test-reply-form.open{flex-direction:column}
+  .test-reply-form input{width:100%}
+  .test-replies{margin-left:20px}
+  .test-reply-form{margin-left:20px}
+}
 
 @media(max-width:700px){
   .bio-fab{width:50px;height:50px;font-size:18px;right:80px;bottom:80px}
@@ -527,32 +556,32 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
   <div class="discography-grid">
     <div class="disc-track">
       <iframe src="https://www.youtube.com/embed/gc5NF-eq4n8" title="Matt Ngesa - Muse" frameborder="0" allowfullscreen></iframe>
-      <h3>Matt Ngesa â€” Muse</h3>
+      <h3>Matt Ngesa  -  Muse</h3>
       <p>Diaspora Session</p>
     </div>
     <div class="disc-track">
       <iframe src="https://www.youtube.com/embed/HNqdYoYU8xg" title="Mordecai Dex - Mema" frameborder="0" allowfullscreen></iframe>
-      <h3>Mordecai Dex â€” Mema</h3>
+      <h3>Mordecai Dex  -  Mema</h3>
       <p>Diaspora Session</p>
     </div>
     <div class="disc-track">
       <iframe src="https://www.youtube.com/embed/C-8oT-nuBZc" title="Clark Keeng - Red Sun" frameborder="0" allowfullscreen></iframe>
-      <h3>Clark Keeng â€” Red Sun</h3>
+      <h3>Clark Keeng  -  Red Sun</h3>
       <p>Diaspora Session</p>
     </div>
     <div class="disc-track">
       <iframe src="https://www.youtube.com/embed/yJ91ZY_iciM" title="Dice Mane - Rudia" frameborder="0" allowfullscreen></iframe>
-      <h3>Dice Mane â€” Rudia</h3>
+      <h3>Dice Mane  -  Rudia</h3>
       <p>Session</p>
     </div>
     <div class="disc-track">
       <iframe src="https://www.youtube.com/embed/xt3JEPcQgog" title="Naked Freestyle" frameborder="0" allowfullscreen></iframe>
-      <h3>RadioActive 254, Dice Mane â€” Naked Freestyle</h3>
+      <h3>RadioActive 254, Dice Mane  -  Naked Freestyle</h3>
       <p>Session</p>
     </div>
     <div class="disc-track">
       <iframe src="https://www.youtube.com/embed/kYM18jA1yPs" title="Dice Mane - RESILIENT" frameborder="0" allowfullscreen></iframe>
-      <h3>Dice Mane â€” RESILIENT</h3>
+      <h3>Dice Mane  -  RESILIENT</h3>
       <p>Session</p>
     </div>
     <div class="disc-track">
@@ -567,13 +596,13 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
     </div>
     <div class="disc-track">
       <iframe src="https://www.youtube.com/embed/aAjFKC2pdzw" title="Better Person" frameborder="0" allowfullscreen></iframe>
-      <h3>Tyrelm â€” Better Person</h3>
-      <p>Single Â· 2025</p>
+      <h3>Tyrelm  -  Better Person</h3>
+      <p>Single - 2025</p>
     </div>
     <div class="disc-track">
       <iframe src="https://www.youtube.com/embed/ImByPRQJjas" title="Ghost" frameborder="0" allowfullscreen></iframe>
-      <h3>Tyrelm â€” Ghost</h3>
-      <p>Single Â· 2025</p>
+      <h3>Tyrelm  -  Ghost</h3>
+      <p>Single - 2025</p>
     </div>
   </div>
 </section>
@@ -582,7 +611,7 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
   <div class="stems-header">
     <span class="section-label">Collaborate</span>
     <h2>Send Stems</h2>
-    <p>Submit your tracks via WhatsApp, email, or Dropbox. Reviews will happen within 2â€“3 business days. Format: 24-bit / 44kHz to 48kHz WAV.</p>
+    <p>Submit your tracks via WhatsApp, email, or Dropbox. Reviews will happen within 2 - 3 business days. Format: 24-bit / 44kHz to 48kHz WAV.</p>
   </div>
   <div class="stems-methods">
     <div class="stems-method">
@@ -620,7 +649,7 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
   <div class="legacy-content">
     <span class="section-label">Free Plugin</span>
     <h2>Legacy<em>Reverb &amp; Delay</em></h2>
-    <p>Tysonics Legacy â€” a reverb &amp; delay plugin. Built for producers who want depth, space, and character.</p>
+    <p>Tysonics Legacy  -  a reverb &amp; delay plugin. Built for producers who want depth, space, and character.</p>
     <a href="TYSONIX%20BUNDLE.rar" download class="btn-gold">Download Legacy (Free Plugin)</a>
   </div>
 </section>
@@ -643,13 +672,13 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 // Dynamic data mapping for terms modals
 const termsData = {
   production: {
-    title: "Music Production â€” Terms & Credits",
+    title: "Music Production  -  Terms & Credits",
     html: `<ul>
             <li><strong>Rate:</strong> 20,000 KES per project. Client owns the master recording rights to their song.</li>
             <li><strong>Beat composition:</strong> Remains the property of Tyrelm Nation. Client does not own the underlying beat composition.</li>
-            <li><strong>Exclusive licence buyout:</strong> 70,000 â€” 85,000 KES. Client purchases full exclusive rights to the beat composition.</li>
-            <li><strong>Collab rate:</strong> If it's a collaboration, the split is 50/50 â€” on composition rights and streaming royalties.</li>
-            <li><strong>Performance track:</strong> +2,000 KES. A live/show-ready version of the song â€” arranged and mixed specifically for stage or live performance use.</li>
+            <li><strong>Exclusive licence buyout:</strong> 70,000  -  85,000 KES. Client purchases full exclusive rights to the beat composition.</li>
+            <li><strong>Collab rate:</strong> If it's a collaboration, the split is 50/50  -  on composition rights and streaming royalties.</li>
+            <li><strong>Performance track:</strong> +2,000 KES. A live/show-ready version of the song  -  arranged and mixed specifically for stage or live performance use.</li>
             <li><strong>Stripped version:</strong> +3,000 KES per version. Acoustic, minimal, or alternative arrangement of the original (e.g. piano-only, guitar-vocal, unplugged). Each additional stripped version is charged separately.</li>
             <li><strong>Production credit:</strong> Track must be credited as <em>Produced by Tyrelm</em>.</li>
             <li><strong>Composer credit:</strong> Edwin Matekwa listed as Composer on all metadata and release documentation.</li>
@@ -657,7 +686,7 @@ const termsData = {
            </ul>`
   },
   mixing: {
-    title: "Mixing & Mastering â€” Terms & Credits",
+    title: "Mixing & Mastering  -  Terms & Credits",
     html: `<ul>
             <li><strong>Stereo Mix & Master:</strong> 15,000 KES per track.</li>
             <li><strong>Album rate:</strong> 12,000 KES per track (multi-track projects).</li>
@@ -665,14 +694,14 @@ const termsData = {
             <li><strong>Mastering only:</strong> 5,000 KES per track.</li>
             <li><strong>File requirements:</strong> Send clean consolidated stems, no spatial plugins, labeled correctly at 24-bit / 48kHz WAV or higher.</li>
             <li><strong>Deliverables:</strong> Stereo mix at 24-bit/48kHz WAV. Ambisonic and Dolby Atmos mixes available on request.</li>
-            <li><strong>Turnaround:</strong> 5â€“7 working days.</li>
+            <li><strong>Turnaround:</strong> 5 - 7 working days.</li>
             <li><strong>Revisions:</strong> Up to 2 passes included in the rate.</li>
            </ul>`
   },
   tracking: {
-    title: "Tracking & Recording â€” Terms & Credits",
+    title: "Tracking & Recording  -  Terms & Credits",
     html: `<ul>
-            <li><strong>Engineering fee:</strong> 2,000 KES/hr â€” this is Tyrelm's fee for engineering the session. It does not include studio space rental.</li>
+            <li><strong>Engineering fee:</strong> 2,000 KES/hr  -  this is Tyrelm's fee for engineering the session. It does not include studio space rental.</li>
             <li><strong>Studio space:</strong> Ranges from 1,000 KES/hr (budget studios) to 5,000 KES/hr (high-end facilities). Options are discussed based on your budget and project needs.</li>
             <li><strong>Booking:</strong> Full payment upfront to confirm the session slot.</li>
             <li><strong>Cancellation:</strong> 24-hour notice required or a 30% hold fee applies.</li>
@@ -680,12 +709,12 @@ const termsData = {
            </ul>`
   },
   consultation: {
-    title: "Audio Consultation â€” Terms & Credits",
+    title: "Audio Consultation  -  Terms & Credits",
     html: `<ul>
             <li><strong>Rate:</strong> 2,500 KES per session.</li>
             <li><strong>What's covered:</strong> Mix feedback, arrangement review, pre-production planning, and release direction.</li>
             <li><strong>Preparation:</strong> Send your materials (tracks, links, briefs) to <em>tyrellmatekwa@gmail.com</em> at least 12 hours before the session.</li>
-            <li><strong>Format:</strong> Remote (video call) or in-person â€” confirmed on booking.</li>
+            <li><strong>Format:</strong> Remote (video call) or in-person  -  confirmed on booking.</li>
            </ul>`
   }
 };
@@ -742,7 +771,7 @@ window.onclick = function(event) {
     <button class="game-panel-close" onclick="toggleGame()">&times;</button>
   </div>
   <div class="game-panel-body">
-    <p class="game-sub">Find 2 guitars in 12 holes â€” 5 guesses, 10s</p>
+    <p class="game-sub">Find 2 guitars in 12 holes  -  5 guesses, 10s</p>
     <div class="game-stats">
       <span>Guesses: <em id="gGuess">3</em></span>
       <span>Found: <em id="gFound">0</em></span>
@@ -1102,6 +1131,7 @@ function prevTrack() { playTrack((mpIdx - 1 + TRACKS.length) % TRACKS.length); }
         <textarea id="tText" placeholder="Write a comment..." maxlength="500"></textarea>
         <button id="tBtn" onclick="submitTestimonial()">Post</button>
       </div>
+      <div class="test-count" id="testCount"></div>
       <div class="test-list" id="testList">
         <div class="test-empty">No comments yet. Be the first to share!</div>
       </div>
@@ -1121,13 +1151,53 @@ const FIREBASE_CONFIG = {
 };
 
 let FSDB = null;
+let _testUnsub = null;
+
 function initFirestore() {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     FSDB = firebase.firestore();
+    FSDB.settings({ merge: true });
   } catch(e) { console.log('Firebase init fail', e); }
 }
 
+// --- Profanity filter ---
+const _BAD = [
+  /f\s*u\s*c\s*k/gi, /s\s*h\s*i\s*t/gi,
+  /b\s*i\s*t\s*c\s*h/gi, /a\s*s\s*s\s*h\s*o\s*l\s*e/gi,
+  /d\s*i\s*c\s*k/gi, /c\s*o\s*c\s*k/gi,
+  /p\s*i\s*s\s*s/gi, /c\s*u\s*n\s*t/gi,
+  /n\s*i\s*g\s*g\s*e\s*r/gi, /b\s*o\s*n\s*e\s*r/gi
+];
+function cleanText(t) {
+  if (!t) return t;
+  let s = t;
+  for (let r of _BAD) { s = s.replace(r, function(m) { return '*'.repeat(m.length); }); }
+  return s;
+}
+
+// --- Avatar color ---
+function avatarColor(n) {
+  const colors = ['#e0bb60','#e25555','#4a9eff','#50c878','#ff8c42','#c084fc','#f472b6','#22d3ee'];
+  let h = 0;
+  for (let i=0; i<n.length; i++) h = ((h<<5)-h)+n.charCodeAt(i);
+  return colors[Math.abs(h)%colors.length];
+}
+
+// --- Relative time ---
+function relTime(t) {
+  if (!t) return '';
+  const d = t.toDate ? t.toDate() : new Date(t);
+  const diff = Math.floor((Date.now()-d)/1000);
+  if (diff<60) return 'just now';
+  if (diff<3600) return Math.floor(diff/60)+'m ago';
+  if (diff<86400) return Math.floor(diff/3600)+'h ago';
+  if (diff<172800) return 'yesterday';
+  if (diff<604800) return Math.floor(diff/86400)+'d ago';
+  return d.toLocaleDateString();
+}
+
+// --- Toggle bio overlay ---
 function toggleBio() {
   const overlay = document.getElementById('bioOverlay');
   const fab = document.getElementById('bioFab');
@@ -1136,26 +1206,39 @@ function toggleBio() {
   document.body.style.overflow = open ? 'hidden' : '';
   if (open && !window._bioLoaded) {
     window._bioLoaded = true;
-    loadTestimonials();
+    listenTestimonials();
   }
 }
 
+// --- Like helpers (localStorage) ---
+function _lk() {
+  try { return JSON.parse(localStorage.getItem('_tl')||'{}'); } catch(e){ return {} }
+}
+function _isLiked(id) { return !!_lk()[id]; }
+function _toggleLiked(id) {
+  const o = _lk();
+  if (o[id]) delete o[id]; else o[id]=1;
+  localStorage.setItem('_tl', JSON.stringify(o));
+  return !!o[id];
+}
+
+// --- Submit comment ---
 function submitTestimonial() {
   const name = document.getElementById('tName').value.trim();
-  const text = document.getElementById('tText').value.trim();
+  let text = document.getElementById('tText').value.trim();
   const btn = document.getElementById('tBtn');
   if (!name || !text) { alert('Please enter your name and a comment.'); return; }
+  text = cleanText(text);
   btn.disabled = true; btn.textContent = 'Posting...';
-  if (!FSDB) { alert('Database not available. Try again.'); btn.disabled = false; btn.textContent = 'Post'; return; }
+  if (!FSDB) { alert('Database not available.'); btn.disabled = false; btn.textContent = 'Post'; return; }
   FSDB.collection('testimonials').add({
-    name: name,
-    text: text,
+    name: name, text: text,
+    likes: 0, likedBy: [],
     time: firebase.firestore.FieldValue.serverTimestamp()
   }).then(function() {
     document.getElementById('tName').value = '';
     document.getElementById('tText').value = '';
     btn.disabled = false; btn.textContent = 'Post';
-    loadTestimonials();
   }).catch(function(e) {
     console.log('Error:', e);
     btn.disabled = false; btn.textContent = 'Post';
@@ -1163,23 +1246,103 @@ function submitTestimonial() {
   });
 }
 
-function loadTestimonials() {
+// --- Like ---
+function toggleLike(id) {
+  if (!FSDB) return;
+  const liked = _toggleLiked(id);
+  const ref = FSDB.collection('testimonials').doc(id);
+  FSDB.runTransaction(function(t) {
+    return t.get(ref).then(function(doc) {
+      if (!doc.exists) return;
+      let likes = doc.data().likes || 0;
+      t.update(ref, { likes: liked ? likes+1 : Math.max(0,likes-1) });
+    });
+  }).catch(function(e) { console.log('Like error:', e); });
+}
+
+// --- Reply ---
+function toggleReplyForm(id) {
+  const el = document.getElementById('rf-'+id);
+  if (el) el.classList.toggle('open');
+}
+function submitReply(id) {
+  const inp = document.getElementById('ri-'+id);
+  let text = inp.value.trim();
+  if (!text) return;
+  text = cleanText(text);
+  if (!FSDB) return;
+  inp.disabled = true;
+  FSDB.collection('testimonials').doc(id).collection('replies').add({
+    name: 'Anonymous',
+    text: text,
+    time: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function() {
+    inp.value = ''; inp.disabled = false;
+  }).catch(function(e) { console.log('Reply error:', e); inp.disabled = false; });
+}
+
+// --- Delete comment ---
+function deleteComment(id) {
+  if (!confirm('Delete this comment?')) return;
+  if (!FSDB) return;
+  FSDB.collection('testimonials').doc(id).delete().catch(function(e) { console.log('Delete error:', e); });
+}
+
+// --- Real-time listener ---
+function listenTestimonials() {
+  if (_testUnsub) { _testUnsub(); _testUnsub = null; }
   const list = document.getElementById('testList');
-  if (!FSDB) { return; }
-  FSDB.collection('testimonials').orderBy('time', 'desc').limit(50).get().then(function(snap) {
+  const countEl = document.getElementById('testCount');
+  if (!FSDB) return;
+  _testUnsub = FSDB.collection('testimonials').orderBy('time', 'desc').limit(50).onSnapshot(function(snap) {
     if (snap.empty) {
       list.innerHTML = '<div class="test-empty">No comments yet. Be the first to share!</div>';
+      if (countEl) countEl.textContent = '';
       return;
     }
+    countEl.textContent = snap.size + ' comment' + (snap.size!==1?'s':'');
     let html = '';
     snap.forEach(function(doc) {
       const d = doc.data();
-      const initial = (d.name && d.name.length > 0) ? d.name.charAt(0).toUpperCase() : '?';
-      const dateStr = d.time && d.time.toDate ? d.time.toDate().toLocaleDateString() : '';
-      html += '<div class="test-item"><div class="test-item-header"><div class="test-avatar">' + initial + '</div><div class="test-name">' + escapeHtml(d.name) + '</div><div class="test-date">' + dateStr + '</div></div><div class="test-text">' + escapeHtml(d.text) + '</div></div>';
+      const id = doc.id;
+      const initial = d.name ? d.name.charAt(0).toUpperCase() : '?';
+      const color = avatarColor(d.name||'');
+      const timeStr = relTime(d.time);
+      const liked = _isLiked(id) ? ' liked' : '';
+      html += '<div class="test-item" id="ti-'+id+'">';
+      html += '<button class="test-delete" onclick="deleteComment(\''+id+'\')" title="Delete">&#10005;</button>';
+      html += '<div class="test-item-header"><div class="test-avatar" style="background:'+color+'">'+initial+'</div>';
+      html += '<div class="test-name">'+escapeHtml(d.name||'Anonymous')+'</div><div class="test-date">'+timeStr+'</div></div>';
+      html += '<div class="test-text">'+escapeHtml(d.text||'')+'</div>';
+      html += '<div class="test-actions">';
+      html += '<button class="test-like'+liked+'" onclick="toggleLike(\''+id+'\')"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> <span id="lc-'+id+'">'+(d.likes||0)+'</span></button>';
+      html += '<button class="test-reply-btn" onclick="toggleReplyForm(\''+id+'\')">Reply</button>';
+      html += '</div>';
+      html += '<div class="test-reply-form" id="rf-'+id+'"><input id="ri-'+id+'" placeholder="Write a reply..." maxlength="300"><button onclick="submitReply(\''+id+'\')">Reply</button></div>';
+      html += '<div class="test-replies" id="tr-'+id+'"><div class="test-empty" style="padding:12px;font-size:12px;color:rgba(242,237,228,0.2);border-color:rgba(242,237,228,0.08)">Loading replies...</div></div>';
+      html += '</div>';
     });
     list.innerHTML = html;
-  }).catch(function(e) { console.log('Load error:', e); });
+    // Load replies for each visible comment
+    snap.forEach(function(doc) {
+      loadReplies(doc.id);
+    });
+  }, function(e) { console.log('Listener error:', e); });
+}
+
+// --- Load replies ---
+function loadReplies(commentId) {
+  const el = document.getElementById('tr-'+commentId);
+  if (!el || !FSDB) return;
+  FSDB.collection('testimonials').doc(commentId).collection('replies').orderBy('time', 'asc').limit(20).get().then(function(snap) {
+    if (snap.empty) { el.innerHTML = ''; return; }
+    let html = '';
+    snap.forEach(function(r) {
+      const rd = r.data();
+      html += '<div class="test-reply"><span class="test-reply-name">' + escapeHtml(rd.name||'Anonymous') + '</span><span class="test-reply-text">' + escapeHtml(rd.text||'') + '</span><span class="test-reply-date">' + relTime(rd.time) + '</span></div>';
+    });
+    el.innerHTML = html;
+  }).catch(function(e) { console.log('Replies load error:', e); el.innerHTML = ''; });
 }
 
 function escapeHtml(str) {
