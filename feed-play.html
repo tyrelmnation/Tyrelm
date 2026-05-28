@@ -306,6 +306,7 @@ let curTrackIdx = -1;
 let isPlaying = false;
 let fbTrackId = null;
 let fbTimeStamp = null;
+let folderCoverUrl = null;
 
 // ===== DROPBOX API =====
 // Folder structure: /Feed-Play/{ClientName}/*.m4a, *.mp3, *.wav, *.flac
@@ -337,6 +338,7 @@ function findClientFolder(name) {
 }
 
 function loadTracksForClient(name) {
+  folderCoverUrl = null;
   return findClientFolder(name).then(function(folderPath) {
     if (!folderPath) return [];
     return listDropboxFolder(folderPath).then(function(data) {
@@ -348,6 +350,18 @@ function loadTracksForClient(name) {
       var ext = e.name.toLowerCase().substring(e.name.lastIndexOf('.'));
       return audioExts.indexOf(ext) !== -1;
     });
+    // Find cover art image in folder
+    var imgExts = ['.jpg', '.jpeg', '.png', '.gif'];
+    var imgFiles = entries.filter(function(e) {
+      if (e['.tag'] !== 'file') return false;
+      var ext = e.name.toLowerCase().substring(e.name.lastIndexOf('.'));
+      return imgExts.indexOf(ext) !== -1;
+    });
+    if (imgFiles.length > 0) {
+      getDropboxTemporaryLink(imgFiles[0].path_lower).then(function(linkData) {
+        if (!linkData.error && linkData.link) folderCoverUrl = linkData.link;
+      }).catch(function(){});
+    }
     return Promise.all(audioFiles.map(function(file) {
       var title = file.name.replace(/\.[^/.]+$/, '');
       return getDropboxTemporaryLink(file.path_lower).then(function(linkData) {
@@ -486,8 +500,14 @@ function toggleTrack(idx) {
   var img = document.getElementById('artImg');
   img.className = '';
   document.getElementById('artPh').style.display = 'block';
-  // Extract embedded cover art
-  if (window.jsmediatags) {
+  // Folder cover art (image file in folder) takes priority
+  if (folderCoverUrl) {
+    img.src = folderCoverUrl;
+    img.className = 'show';
+    document.getElementById('artPh').style.display = 'none';
+  }
+  // Fallback: try embedded tags
+  if (!folderCoverUrl && window.jsmediatags) {
     jsmediatags.read(track.url, {
       onSuccess: function(tag) {
         var tags = tag.tags;
