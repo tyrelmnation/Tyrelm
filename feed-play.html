@@ -157,9 +157,7 @@ nav .nav-logout:hover{color:var(--gold);border-color:var(--gold-dim)}
     <label>Enter your name to access your tracks</label>
     <input type="text" id="loginName" placeholder="e.g. Koffee" autocomplete="off" autofocus>
     <button class="login-btn" id="loginBtn">View My Tracks</button>
-    <div style="font-size:10px;color:var(--dim);font-family:monospace;letter-spacing:1px;margin-top:16px">
-      <span id="connectStatus">&#9679; Connecting...</span>
-    </div>
+
     <div class="login-error" id="loginError"></div>
   </div>
 </div>
@@ -267,63 +265,15 @@ try {
   firebase.auth().signInAnonymously().catch(function(){});
 } catch(e) { console.log('Firebase init fail', e); }
 
-// ===== OAUTH PKCE =====
-const CLIENT_ID = 'uqejhdped4gdo4r';
-const REDIRECT_URI = window.location.origin + window.location.pathname.replace(/\/$/, '');
-const SCOPES = 'files.metadata.read files.content.read';
+// ===== DROPBOX CONFIG (embedded) =====
+const DB_CLIENT_ID = 'uqejhdped4gdo4r';
+const DB_CLIENT_SECRET = '24ap6derfs8q25i';
+const DB_REFRESH_TOKEN = '5JKGKTpk3RIAAAAAAAAAAS5pLHyiG9vH4p120PMdAIWvI6JfPOEwXfVNOLIwO_6I';
 
-function base64url(buf) {
-  var bytes = new Uint8Array(buf);
-  var str = '';
-  for (var i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
-  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function generateCodeVerifier() {
-  var arr = new Uint8Array(64);
-  crypto.getRandomValues(arr);
-  return base64url(arr);
-}
-
-function sha256(plain) {
-  var encoder = new TextEncoder();
-  return crypto.subtle.digest('SHA-256', encoder.encode(plain));
-}
-
-function generateCodeChallenge(verifier) {
-  return sha256(verifier).then(function(buf) { return base64url(buf); });
-}
-
-function setTokens(access, refresh) {
-  if (access) localStorage.setItem('fp_at', access);
-  if (refresh) localStorage.setItem('fp_rt', refresh);
-}
-
-function getAccessToken() { return localStorage.getItem('fp_at'); }
-function getRefreshToken() { return localStorage.getItem('fp_rt'); }
-function clearTokens() { localStorage.removeItem('fp_at'); localStorage.removeItem('fp_rt'); }
-function isConnected() { return !!getRefreshToken(); }
-
-function startOAuth() {
-  var verifier = generateCodeVerifier();
-  generateCodeChallenge(verifier).then(function(challenge) {
-    localStorage.setItem('fp_cv', verifier);
-    var state = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
-    localStorage.setItem('fp_state', state);
-    var url = 'https://www.dropbox.com/oauth2/authorize?client_id=' + CLIENT_ID +
-      '&response_type=code&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
-      '&token_access_type=offline&code_challenge_method=S256&code_challenge=' + challenge +
-      '&state=' + state + '&scope=' + encodeURIComponent(SCOPES);
-    window.location.href = url;
-  });
-}
-
-function exchangeCode(code, verifier) {
-  var body = 'code=' + encodeURIComponent(code) +
-    '&grant_type=authorization_code' +
-    '&client_id=' + CLIENT_ID +
-    '&code_verifier=' + encodeURIComponent(verifier) +
-    '&redirect_uri=' + encodeURIComponent(REDIRECT_URI);
+function refreshAccessToken() {
+  var body = 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(DB_REFRESH_TOKEN) +
+    '&client_id=' + encodeURIComponent(DB_CLIENT_ID) +
+    '&client_secret=' + encodeURIComponent(DB_CLIENT_SECRET);
   return fetch('https://api.dropbox.com/oauth2/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -331,67 +281,19 @@ function exchangeCode(code, verifier) {
   }).then(function(r) { return r.json(); });
 }
 
-function refreshAccessToken() {
-  var rt = getRefreshToken();
-  if (!rt) return Promise.reject(new Error('No refresh token'));
-  var body = 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(rt) +
-    '&client_id=' + CLIENT_ID;
-  return fetch('https://api.dropbox.com/oauth2/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body
-  }).then(function(r) { return r.json(); }).then(function(data) {
-    if (data.access_token) {
-      setTokens(data.access_token, null);
-      return data.access_token;
-    }
-    throw new Error('Refresh failed');
-  });
-}
-
 function dropboxFetch(url, body) {
-  var token = getAccessToken();
-  if (!token) return Promise.reject(new Error('Not connected'));
-  return fetch(url, {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  }).then(function(r) {
-    if (r.status === 401) {
-      return refreshAccessToken().then(function(newToken) {
-        return fetch(url, {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + newToken, 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        }).then(function(r2) { return r2.json(); });
-      });
-    }
-    return r.json();
+  return refreshAccessToken().then(function(data) {
+    if (!data.access_token) throw new Error('Auth failed');
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + data.access_token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function(r) { return r.json(); });
   });
 }
 
-// Handle OAuth redirect callback
-(function() {
-  var params = new URLSearchParams(window.location.search);
-  var code = params.get('code');
-  var state = params.get('state');
-  if (code && state) {
-    var savedState = localStorage.getItem('fp_state');
-    var verifier = localStorage.getItem('fp_cv');
-    localStorage.removeItem('fp_state');
-    localStorage.removeItem('fp_cv');
-    if (state === savedState && verifier) {
-      exchangeCode(code, verifier).then(function(data) {
-        if (data.access_token && data.refresh_token) {
-          setTokens(data.access_token, data.refresh_token);
-        }
-        window.location.href = window.location.pathname;
-      });
-    } else {
-      window.location.href = window.location.pathname;
-    }
-  }
-})();
+// Pre-fetch token on load so first request is fast
+(function() { refreshAccessToken(); })();
 
 // ===== STATE =====
 let clientName = '';
@@ -453,12 +355,10 @@ function loadTracksForClient(name) {
       return results.filter(function(t) { return t !== null; });
     });
     }).catch(function(err) {
-      if (err.message === 'Not connected') return [];
       console.error('Dropbox error:', err);
       return [];
     });
   }).catch(function(err) {
-    if (err.message === 'Not connected') return [];
     console.error('Dropbox error:', err);
     return [];
   });
@@ -752,20 +652,6 @@ function showToast(msg) {
   setTimeout(function() { t.classList.remove('show'); }, 2500);
 }
 
-// ===== AUTO-CONNECT =====
-(function() {
-  if (!isConnected()) {
-    var params = new URLSearchParams(window.location.search);
-    if (!params.get('code')) {
-      startOAuth();
-      return;
-    }
-  }
-  if (isConnected()) {
-    document.getElementById('connectStatus').textContent = '\u25CF Connected';
-    document.getElementById('connectStatus').style.color = '#00ff88';
-  }
-})();
 </script>
 </body>
 </html>
