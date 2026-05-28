@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tyrelm Nation — Music. Sound. Creativity.</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -257,6 +259,21 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
   .game-fab{bottom:76px;left:20px;width:48px;height:48px;font-size:20px}
   .game-grid{max-width:240px;gap:6px}
   .game-hole{font-size:20px}
+  .who-hero{grid-template-columns:1fr;gap:24px;padding-top:0}
+  .who-hero-img{max-width:280px;margin:0 auto}
+  .who-sessions-grid{grid-template-columns:1fr}
+  .showcase{padding:40px 16px}
+  .showcase-header h2{font-size:clamp(36px,10vw,48px)}
+  .showcase-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .testimonials{padding:40px 16px}
+  .testimonials-header h2{font-size:clamp(36px,10vw,48px)}
+  .tc-form .tf-row{grid-template-columns:1fr}
+  .sessions{padding:40px 16px}
+  .sessions-header h2{font-size:clamp(36px,10vw,48px)}
+  .sessions-grid{grid-template-columns:1fr}
+  .feedback{padding:40px 16px}
+  .feedback-header h2{font-size:clamp(36px,10vw,48px)}
+  .who-panel-inner{padding:40px 16px 80px}
   .chat-panel{width:calc(100vw - 40px);right:20px;max-height:60vh;bottom:80px}
   .chat-fab{bottom:76px;right:20px;width:56px;height:56px;font-size:24px}
   .mini-player{padding:6px 10px;gap:8px;height:48px}
@@ -306,6 +323,104 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
   .services-header{flex-direction:column;align-items:flex-start;gap:12px}
   .services-header p{text-align:left}
 }
+
+/* WHO IS TYRELM — FLOATING BUBBLE + MODAL */
+.who-fab{position:fixed;bottom:28px;left:28px;z-index:99999;width:60px;height:60px;border-radius:50%;background:var(--gold);color:var(--black);border:none;font-size:14px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 20px rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.2s;line-height:1.2;text-align:center;padding:4px}
+.who-fab:hover{transform:scale(1.08)}
+.who-fab.hidden{display:none}
+.who-panel{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99998;background:rgba(8,8,8,0.96);display:none;overflow-y:auto}
+.who-panel.open{display:block}
+.who-panel-inner{max-width:800px;margin:0 auto;padding:60px 32px 100px}
+.who-close{position:fixed;top:24px;right:24px;z-index:99999;background:var(--gold);color:var(--black);border:none;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s;font-family:'Bebas Neue',sans-serif}
+.who-close:hover{transform:scale(1.1)}
+.who-hero{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-bottom:60px;padding-top:20px}
+.who-hero-img{width:100%;aspect-ratio:1;object-fit:cover;border:1px solid var(--border);border-radius:4px}
+.who-hero-text .section-label{margin-bottom:16px}
+.who-hero-text h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,6vw,80px);line-height:0.92;margin-bottom:20px}
+.who-hero-text h2 em{color:var(--gold);font-style:normal;display:block}
+.who-hero-text p{font-size:15px;color:rgba(242,237,228,0.65);line-height:1.8;margin-bottom:12px}
+.who-bio h3{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);margin:40px 0 20px;letter-spacing:1px}
+.who-bio p{font-size:15px;color:rgba(242,237,228,0.65);line-height:1.8;margin-bottom:16px}
+.who-bio .mission{background:var(--mid);padding:32px;border-left:3px solid var(--gold);margin:32px 0}
+.who-bio .mission p{font-size:14px;color:rgba(242,237,228,0.55);margin:0;font-style:italic}
+.who-bio .mission strong{color:var(--offwhite);font-style:normal}
+.who-sessions{margin-top:40px}
+.who-sessions h4{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);margin-bottom:16px}
+.who-sessions-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.who-sessions-grid a{color:rgba(242,237,228,0.6);font-size:13px;text-decoration:none;padding:10px 16px;background:var(--mid);border:1px solid var(--border);border-radius:4px;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+.who-sessions-grid a:hover{color:var(--gold);border-color:var(--gold);background:#1a1a1a}
+.who-sessions-grid a::before{content:'\25B6';color:var(--gold);font-size:10px}
+/* ARTIST SHOWCASE */
+.showcase{padding:100px 64px;background:var(--black);border-top:1px solid var(--border)}
+.showcase-header{text-align:center;margin-bottom:64px}
+.showcase-header h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,80px);margin-bottom:12px}
+.showcase-header p{font-size:14px;color:rgba(242,237,228,0.5);max-width:480px;margin:0 auto}
+.showcase-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:24px;max-width:1000px;margin:0 auto}
+.showcase-card{background:var(--mid);border:1px solid var(--border);border-radius:4px;padding:24px;text-align:center;transition:border-color 0.2s,transform 0.2s}
+.showcase-card:hover{border-color:var(--gold);transform:translateY(-4px)}
+.showcase-card .sc-avatar{width:80px;height:80px;border-radius:50%;background:var(--black);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:32px;border:2px solid var(--border);overflow:hidden}
+.showcase-card .sc-avatar img{width:100%;height:100%;object-fit:cover}
+.showcase-card h3{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:1px;margin-bottom:4px}
+.showcase-card p{font-size:12px;color:rgba(242,237,228,0.4);margin-bottom:12px}
+.showcase-card .sc-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.showcase-card .sc-tags span{font-size:10px;padding:4px 10px;background:var(--black);border:1px solid var(--border);border-radius:12px;color:rgba(242,237,228,0.4);letter-spacing:0.03em}
+/* TESTIMONIALS */
+.testimonials{padding:100px 64px;background:var(--mid)}
+.testimonials-header{text-align:center;margin-bottom:64px}
+.testimonials-header h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,80px);margin-bottom:12px}
+.testimonials-header p{font-size:14px;color:rgba(242,237,228,0.5);max-width:480px;margin:0 auto}
+.testimonials-list{max-width:720px;margin:0 auto 60px;display:flex;flex-direction:column;gap:20px}
+.testimonial-card{background:var(--black);border:1px solid var(--border);border-radius:4px;padding:24px}
+.testimonial-card .tc-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.testimonial-card .tc-avatar{width:44px;height:44px;border-radius:50%;background:var(--mid);display:flex;align-items:center;justify-content:center;font-size:18px;border:1px solid var(--border);flex-shrink:0;overflow:hidden}
+.testimonial-card .tc-avatar img{width:100%;height:100%;object-fit:cover}
+.testimonial-card .tc-name{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);letter-spacing:0.5px}
+.testimonial-card .tc-role{font-size:11px;color:rgba(242,237,228,0.35)}
+.testimonial-card .tc-date{font-size:10px;color:rgba(242,237,228,0.25);margin-left:auto}
+.testimonial-card .tc-text{font-size:14px;color:rgba(242,237,228,0.65);line-height:1.7}
+.testimonial-card .tc-text::before{content:'\201C';color:var(--gold);font-size:24px;line-height:0;vertical-align:-6px;margin-right:4px}
+.testimonial-card .tc-text::after{content:'\201D';color:var(--gold);font-size:24px;line-height:0;vertical-align:4px;margin-left:4px}
+.tc-empty{text-align:center;padding:60px 20px;color:rgba(242,237,228,0.3);font-size:14px}
+.tc-form{max-width:600px;margin:0 auto;background:var(--black);border:1px solid var(--border);border-radius:4px;padding:36px}
+.tc-form h3{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);margin-bottom:24px;text-align:center;letter-spacing:1px}
+.tc-form .tf-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.tc-form input,.tc-form textarea,.tc-form select{width:100%;background:#1a1a1a;border:1px solid var(--border);border-radius:4px;padding:12px 14px;color:var(--offwhite);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.tc-form input:focus,.tc-form textarea:focus,.tc-form select:focus{border-color:var(--gold)}
+.tc-form input::placeholder,.tc-form textarea::placeholder{color:rgba(242,237,228,0.25)}
+.tc-form textarea{resize:vertical;min-height:100px}
+.tc-form .tf-submit{display:block;width:100%;background:var(--gold);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;padding:14px;border:none;border-radius:4px;cursor:pointer;transition:background 0.2s;margin-top:8px}
+.tc-form .tf-submit:hover{background:#e0bb60}
+.tc-form .tf-submit:disabled{opacity:0.4;cursor:default}
+.tc-form .tf-msg{font-size:12px;margin-top:12px;text-align:center;min-height:18px}
+.tc-form .tf-msg.success{color:var(--gold)}
+.tc-form .tf-msg.error{color:rgba(255,100,100,0.8)}
+.tc-form .tf-msg.loading{color:rgba(242,237,228,0.4)}
+/* SESSION SNIPPETS */
+.sessions{padding:100px 64px;background:var(--black);border-top:1px solid var(--border)}
+.sessions-header{text-align:center;margin-bottom:64px}
+.sessions-header h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,80px);margin-bottom:12px}
+.sessions-header p{font-size:14px;color:rgba(242,237,228,0.5);max-width:480px;margin:0 auto}
+.sessions-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:960px;margin:0 auto}
+.session-card{background:var(--mid);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.2s}
+.session-card:hover{border-color:var(--gold)}
+.session-card .sc-video{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;background:var(--black)}
+.session-card .sc-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.session-card .sc-info{padding:16px 20px}
+.session-card .sc-info h3{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:0.5px}
+.session-card .sc-info p{font-size:12px;color:rgba(242,237,228,0.4)}
+/* FEEDBACK SECTION */
+.feedback{padding:100px 64px;background:var(--mid);border-top:1px solid var(--border)}
+.feedback-header{text-align:center;margin-bottom:48px}
+.feedback-header h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,80px);margin-bottom:12px}
+.feedback-header p{font-size:14px;color:rgba(242,237,228,0.5);max-width:480px;margin:0 auto}
+.feedback-methods{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;max-width:800px;margin:0 auto}
+.feedback-method{background:var(--black);border:1px solid var(--border);border-radius:4px;padding:36px 32px;text-align:center;flex:1;min-width:200px;transition:border-color 0.2s}
+.feedback-method:hover{border-color:var(--gold)}
+.feedback-method .fb-icon{font-size:32px;margin-bottom:12px}
+.feedback-method h3{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:1px;margin-bottom:8px}
+.feedback-method p{font-size:13px;color:rgba(242,237,228,0.5);margin-bottom:20px}
+.feedback-method .btn-fb{display:inline-block;background:var(--gold);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:12px 28px;text-decoration:none;transition:background 0.2s;border-radius:4px}
+.feedback-method .btn-fb:hover{background:#e0bb60}
 </style>
 </head>
 <body>
@@ -425,22 +540,121 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
 
 
 
-<section class="discography" id="works">
-  <div class="discography-header">
-    <span class="section-label">Releases</span>
-    <h2>Works</h2>
-    <p>Selected productions and collaborations.</p>
+<section class="showcase" id="showcase">
+  <div class="showcase-header">
+    <span class="section-label">Collaborations</span>
+    <h2>Artists</h2>
+    <p>Some of the talented artists I&rsquo;ve had the privilege of working with.</p>
   </div>
-  <div class="discography-grid">
-    <div class="disc-track">
-      <iframe src="https://www.youtube.com/embed/ImByPRQJjas" title="Ghost" frameborder="0" allowfullscreen></iframe>
-      <h3>Ghost</h3>
-      <p>Single · 2025</p>
+  <div class="showcase-grid">
+    <div class="showcase-card">
+      <div class="sc-avatar">🎤</div>
+      <h3>Dex Matt</h3>
+      <p>Singer / Songwriter</p>
+      <div class="sc-tags"><span>Production</span><span>Recording</span><span>Mixing</span></div>
     </div>
-    <div class="disc-track">
-      <iframe src="https://www.youtube.com/embed/aAjFKC2pdzw" title="Better Person" frameborder="0" allowfullscreen></iframe>
-      <h3>Better Person</h3>
-      <p>Single · 2025</p>
+    <div class="showcase-card">
+      <div class="sc-avatar">🎹</div>
+      <h3>Clerk Keeng</h3>
+      <p>Gospel Artist</p>
+      <div class="sc-tags"><span>Production</span><span>Recording</span><span>Mixing</span></div>
+    </div>
+    <div class="showcase-card">
+      <div class="sc-avatar">🎸</div>
+      <h3>Duncan</h3>
+      <p>Singer / Performer</p>
+      <div class="sc-tags"><span>Recording</span><span>Mixing</span><span>Mastering</span></div>
+    </div>
+    <div class="showcase-card">
+      <div class="sc-avatar">🎵</div>
+      <h3>Your Name Here</h3>
+      <p>Next artist — book a session</p>
+      <div class="sc-tags"><span>Book Now</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="testimonials" id="testimonials">
+  <div class="testimonials-header">
+    <span class="section-label">Word on the Street</span>
+    <h2>Testimonials</h2>
+    <p>What artists are saying about working with Tyrelm Nation.</p>
+  </div>
+  <div class="testimonials-list" id="testimonialsList">
+    <div class="tc-empty">Loading testimonials...</div>
+  </div>
+  <div class="tc-form" id="testimonialForm">
+    <h3>Leave a Testimonial</h3>
+    <div class="tf-row">
+      <input type="text" id="tcName" placeholder="Your name" maxlength="60">
+      <input type="text" id="tcRole" placeholder="Artist / Role (optional)" maxlength="60">
+    </div>
+    <div class="tf-row" style="grid-template-columns:1fr">
+      <select id="tcRating">
+        <option value="">Rating (optional)</option>
+        <option value="5">★★★★★</option>
+        <option value="4">★★★★☆</option>
+        <option value="3">★★★☆☆</option>
+        <option value="2">★★☆☆☆</option>
+        <option value="1">★☆☆☆☆</option>
+      </select>
+    </div>
+    <textarea id="tcText" placeholder="Share your experience working with Tyrelm..." maxlength="500"></textarea>
+    <button class="tf-submit" id="tcSubmit" onclick="submitTestimonial()">Post Testimonial</button>
+    <div class="tf-msg" id="tcMsg"></div>
+  </div>
+</section>
+
+<section class="sessions" id="sessions">
+  <div class="sessions-header">
+    <span class="section-label">Behind the Sound</span>
+    <h2>Session Snippets</h2>
+    <p>Live sessions, studio moments, and performances.</p>
+  </div>
+  <div class="sessions-grid">
+    <div class="session-card">
+      <div class="sc-video"><iframe src="https://www.youtube.com/embed/FpE_G5S-p3M" title="Dex Matt - Don't Wait" allowfullscreen></iframe></div>
+      <div class="sc-info"><h3>Dex Matt — Don't Wait</h3><p>Live session</p></div>
+    </div>
+    <div class="session-card">
+      <div class="sc-video"><iframe src="https://www.youtube.com/embed/7YHCEGSmPHo" title="Clerk Keeng - Nimerudi" allowfullscreen></iframe></div>
+      <div class="sc-info"><h3>Clerk Keeng — Nimerudi</h3><p>Live session</p></div>
+    </div>
+    <div class="session-card">
+      <div class="sc-video"><iframe src="https://www.youtube.com/embed/1jKqYvtPKjc" title="Dex Matt - Over You" allowfullscreen></iframe></div>
+      <div class="sc-info"><h3>Dex Matt — Over You</h3><p>Live session</p></div>
+    </div>
+    <div class="session-card">
+      <div class="sc-video"><iframe src="https://www.youtube.com/embed/9h1ZFoQAvGc" title="Clerk Keeng - Wewe" allowfullscreen></iframe></div>
+      <div class="sc-info"><h3>Clerk Keeng — Wewe</h3><p>Live session</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="feedback" id="feedback">
+  <div class="feedback-header">
+    <span class="section-label">Speak Your Mind</span>
+    <h2>Feedback</h2>
+    <p>Heard something you like? Got ideas? Drop your thoughts.</p>
+  </div>
+  <div class="feedback-methods">
+    <div class="feedback-method">
+      <div class="fb-icon">📱</div>
+      <h3>WhatsApp</h3>
+      <p>Quick voice notes or text feedback.</p>
+      <a href="https://wa.me/254706602914" class="btn-fb" target="_blank">Send via WhatsApp</a>
+    </div>
+    <div class="feedback-method">
+      <div class="fb-icon">📧</div>
+      <h3>Email</h3>
+      <p>Detailed thoughts, ideas, or suggestions.</p>
+      <a href="mailto:tyrellmatekwa@gmail.com" class="btn-fb">Send via Email</a>
+    </div>
+    <div class="feedback-method">
+      <div class="fb-icon">💬</div>
+      <h3>Testimonial</h3>
+      <p>Leave a public testimonial above.</p>
+      <a href="#testimonials" class="btn-fb">Write a Review</a>
     </div>
   </div>
 </section>
@@ -491,6 +705,50 @@ footer p{font-size:12px;color:rgba(242,237,228,0.3);letter-spacing:0.05em}
     <a href="TYSONIX%20BUNDLE.rar" download class="btn-gold">Download Legacy (Free Plugin)</a>
   </div>
 </section>
+
+<button class="who-fab" id="whoFab" onclick="toggleWho()">Who is Tyrelm?</button>
+
+<div class="who-panel" id="whoPanel">
+  <button class="who-close" onclick="toggleWho()">&times;</button>
+  <div class="who-panel-inner">
+
+    <div class="who-hero">
+      <div class="who-hero-text">
+        <div class="section-label">The Story</div>
+        <h2>Who is<em>Tyrelm?</em></h2>
+        <p><strong>Edwin Matekwa</strong> — better known as Tyrelm — is a Nairobi-based recording engineer, music producer, and the founder of <strong>Tyrelm Nation</strong>.</p>
+        <p>What started as a deep love for music turned into a full-blown obsession with sound. From teaching himself production in his bedroom to building a professional studio, Tyrelm has spent years honing the craft of turning raw ideas into polished records.</p>
+      </div>
+    </div>
+
+    <div class="who-bio">
+      <h3>The Journey</h3>
+      <p>Tyrelm&rsquo;s path wasn&rsquo;t linear. Like most true artists, the route was carved out of late nights, limited gear, and an unstoppable drive to create. He started as a musician first — writing, recording, and performing before ever touching a mix console. That artist-first perspective is what sets Tyrelm Nation apart: every session is built around the vision of the artist, not just the technical specs.</p>
+      <p>Over the years, Tyrelm has worked with a wide range of talent — from emerging singer-songwriters to established names — recording vocals, producing original compositions, mixing full projects, and providing audio consultation that helps artists make confident creative decisions.</p>
+      <p>The live session archive speaks for itself: dozens of raw, real performances captured on YouTube and Vimeo, showcasing the kind of energy that only comes when an artist feels truly supported in the room.</p>
+
+      <div class="mission">
+        <p><strong>Mission:</strong> To provide every artist who walks through the door with the clarity, confidence, and sonic quality they need to make music that moves people. Tyrelm Nation isn&rsquo;t just a studio — it&rsquo;s an architectural audio framework built to elevate your sound.</p>
+      </div>
+
+      <h3>Live Sessions</h3>
+      <div class="who-sessions">
+        <h4>Recent sessions &amp; performances</h4>
+        <div class="who-sessions-grid">
+          <a href="https://youtu.be/FpE_G5S-p3M" target="_blank">Dex Matt — Don't Wait</a>
+          <a href="https://youtu.be/7YHCEGSmPHo" target="_blank">Clerk Keeng — Nimerudi</a>
+          <a href="https://youtu.be/1jKqYvtPKjc" target="_blank">Dex Matt — Over You</a>
+          <a href="https://youtu.be/9h1ZFoQAvGc" target="_blank">Clerk Keeng — Wewe</a>
+          <a href="https://youtu.be/ArxHFO0eOhQ" target="_blank">Duncan — Time</a>
+          <a href="https://youtu.be/wJ1bxqSGDaw" target="_blank">Clerk Keeng — Yesu</a>
+          <a href="https://youtu.be/rAIDxE_eCnk" target="_blank">Dex Matt — Fire</a>
+          <a href="https://youtu.be/XyKAYHh5HpE" target="_blank">Clerk Keeng — African Woman</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <footer>
   <p>&copy; 2026 Tyrelm Nation. Architectural Audio Frameworks. All Rights Reserved.</p>
@@ -577,6 +835,136 @@ window.onclick = function(event) {
   const modal = document.getElementById('termsModal');
   if (event.target === modal) {
     modal.style.display = 'none';
+  }
+}
+
+// ===== WHO IS TYRELM — FLOATING BUBBLE =====
+function toggleWho() {
+  const panel = document.getElementById('whoPanel');
+  const fab = document.getElementById('whoFab');
+  const open = panel.classList.toggle('open');
+  fab.classList.toggle('hidden', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+
+// ===== FIREBASE TESTIMONIALS =====
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyC9xKh8-faNvx2FGhkWWFqIijjyok1t5uY",
+  authDomain: "tyrelm-gamechanger.firebaseapp.com",
+  databaseURL: "https://tyrelm-gamechanger-default-rtdb.firebaseio.com",
+  projectId: "tyrelm-gamechanger",
+  storageBucket: "tyrelm-gamechanger.firebasestorage.app",
+  messagingSenderId: "866713134903",
+  appId: "1:866713134903:web:0cfe658ff64e5c916892d5"
+};
+let RTDB = null;
+
+try {
+  if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    RTDB = firebase.database();
+    firebase.auth().signInAnonymously().catch(function(){});
+    loadTestimonials();
+  } else {
+    document.getElementById('testimonialsList').innerHTML = '<div class="tc-empty">Testimonials unavailable — Firebase not loaded.</div>';
+  }
+} catch(e) {
+  document.getElementById('testimonialsList').innerHTML = '<div class="tc-empty">Could not connect to database.</div>';
+}
+
+function loadTestimonials() {
+  if (!RTDB) return;
+  const list = document.getElementById('testimonialsList');
+  RTDB.ref('testimonials').orderByChild('createdAt').limitToLast(50).on('value', function(snap) {
+    if (!snap.exists()) {
+      list.innerHTML = '<div class="tc-empty">No testimonials yet. Be the first!</div>';
+      return;
+    }
+    let html = '';
+    const vals = snap.val();
+    const keys = Object.keys(vals).reverse();
+    for (const k of keys) {
+      const t = vals[k];
+      const name = escapeHtml(t.name || 'Anonymous');
+      const role = t.role ? '<div class="tc-role">' + escapeHtml(t.role) + '</div>' : '';
+      const stars = t.rating ? ' <span style="color:var(--gold);font-size:12px">' + '&#9733;'.repeat(parseInt(t.rating)) + '</span>' : '';
+      const date = t.createdAt ? new Date(t.createdAt).toLocaleDateString() : '';
+      const text = escapeHtml(t.text || '');
+      const avatar = name.charAt(0).toUpperCase();
+      html += '<div class="testimonial-card">'
+        + '<div class="tc-head">'
+        + '<div class="tc-avatar">' + avatar + '</div>'
+        + '<div><div class="tc-name">' + name + stars + '</div>' + role + '</div>'
+        + '<div class="tc-date">' + date + '</div>'
+        + '</div>'
+        + '<div class="tc-text">' + text + '</div>'
+        + '</div>';
+    }
+    list.innerHTML = html || '<div class="tc-empty">No testimonials yet.</div>';
+  });
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function submitTestimonial() {
+  if (!RTDB) {
+    document.getElementById('tcMsg').textContent = 'Database unavailable. Try again later.';
+    document.getElementById('tcMsg').className = 'tf-msg error';
+    return;
+  }
+  const name = document.getElementById('tcName').value.trim();
+  const text = document.getElementById('tcText').value.trim();
+  if (!name || !text) {
+    document.getElementById('tcMsg').textContent = 'Please enter your name and a message.';
+    document.getElementById('tcMsg').className = 'tf-msg error';
+    return;
+  }
+  if (text.length < 10) {
+    document.getElementById('tcMsg').textContent = 'Message must be at least 10 characters.';
+    document.getElementById('tcMsg').className = 'tf-msg error';
+    return;
+  }
+  const btn = document.getElementById('tcSubmit');
+  btn.disabled = true;
+  btn.textContent = 'Posting...';
+  document.getElementById('tcMsg').textContent = 'Submitting...';
+  document.getElementById('tcMsg').className = 'tf-msg loading';
+
+  const role = document.getElementById('tcRole').value.trim();
+  const rating = document.getElementById('tcRating').value;
+
+  try {
+    const ref = RTDB.ref('testimonials').push();
+    ref.set({
+      name: name.substring(0, 60),
+      role: role.substring(0, 60),
+      rating: rating || '',
+      text: text.substring(0, 500),
+      createdAt: Date.now()
+    }, function(err) {
+      if (err) {
+        document.getElementById('tcMsg').textContent = 'Error saving. Try again.';
+        document.getElementById('tcMsg').className = 'tf-msg error';
+      } else {
+        document.getElementById('tcMsg').textContent = 'Thank you! Your testimonial has been posted.';
+        document.getElementById('tcMsg').className = 'tf-msg success';
+        document.getElementById('tcName').value = '';
+        document.getElementById('tcRole').value = '';
+        document.getElementById('tcRating').value = '';
+        document.getElementById('tcText').value = '';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Post Testimonial';
+    });
+  } catch(e) {
+    document.getElementById('tcMsg').textContent = 'Error submitting. Try again.';
+    document.getElementById('tcMsg').className = 'tf-msg error';
+    btn.disabled = false;
+    btn.textContent = 'Post Testimonial';
   }
 }
 </script>
