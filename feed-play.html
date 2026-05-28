@@ -157,9 +157,8 @@ nav .nav-logout:hover{color:var(--gold);border-color:var(--gold-dim)}
     <label>Enter your name to access your tracks</label>
     <input type="text" id="loginName" placeholder="e.g. Koffee" autocomplete="off" autofocus>
     <button class="login-btn" id="loginBtn">View My Tracks</button>
-    <button style="margin-top:16px;background:var(--gold);color:var(--black);border:none;border-radius:4px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;width:100%" id="connectBtn">Connect Dropbox</button>
-    <div style="font-size:10px;color:var(--dim);font-family:monospace;letter-spacing:1px;margin-top:8px">
-      <span id="connectStatus">&#9679; Not connected</span>
+    <div style="font-size:10px;color:var(--dim);font-family:monospace;letter-spacing:1px;margin-top:16px">
+      <span id="connectStatus">&#9679; Connecting...</span>
     </div>
     <div class="login-error" id="loginError"></div>
   </div>
@@ -386,11 +385,10 @@ function dropboxFetch(url, body) {
         if (data.access_token && data.refresh_token) {
           setTokens(data.access_token, data.refresh_token);
         }
-        history.replaceState({}, '', window.location.pathname);
-        updateConnectStatus();
+        window.location.href = window.location.pathname;
       });
     } else {
-      history.replaceState({}, '', window.location.pathname);
+      window.location.href = window.location.pathname;
     }
   }
 })();
@@ -754,31 +752,20 @@ function showToast(msg) {
   setTimeout(function() { t.classList.remove('show'); }, 2500);
 }
 
-// ===== CONNECT BUTTON & STATUS =====
-function updateConnectStatus() {
-  var el = document.getElementById('connectStatus');
-  if (isConnected()) {
-    el.textContent = '\u25CF Connected';
-    el.style.color = '#00ff88';
-    document.getElementById('connectBtn').textContent = 'Reconnect Dropbox';
-  } else {
-    el.textContent = '\u25CF Not connected';
-    el.style.color = '#ff6b6b';
-    document.getElementById('connectBtn').textContent = 'Connect Dropbox';
-  }
-}
-updateConnectStatus();
-
-document.getElementById('connectBtn').addEventListener('click', function() {
-  if (isConnected()) {
-    if (confirm('Disconnect from Dropbox?')) {
-      clearTokens();
-      updateConnectStatus();
+// ===== AUTO-CONNECT =====
+(function() {
+  if (!isConnected()) {
+    var params = new URLSearchParams(window.location.search);
+    if (!params.get('code')) {
+      startOAuth();
+      return;
     }
-  } else {
-    startOAuth();
   }
-});
+  if (isConnected()) {
+    document.getElementById('connectStatus').textContent = '\u25CF Connected';
+    document.getElementById('connectStatus').style.color = '#00ff88';
+  }
+})();
 </script>
 </body>
 </html>
