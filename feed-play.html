@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Feed-Play — Tyrelm Nation</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#080808;--offwhite:#f2ede4;--gold:#c9a84c;--gold2:#8a6020;--mid:#111111;--border:rgba(201,168,76,0.2);--dim:rgba(242,237,228,0.35);--green:#00ff88}
+body{background:var(--black);color:var(--offwhite);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.6;overflow-x:hidden;min-height:100vh}
+
+/* ===== LOGIN SCREEN ===== */
+.login-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--black);padding:24px}
+.login-screen.hidden{display:none}
+.login-box{text-align:center;max-width:400px;width:100%}
+.login-box .logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,10vw,72px);color:var(--gold);letter-spacing:2px;margin-bottom:4px}
+.login-box .tagline{font-size:13px;color:var(--dim);margin-bottom:36px;letter-spacing:1px}
+.login-box label{display:block;font-size:11px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.login-box input{width:100%;background:var(--mid);border:1px solid var(--border);border-radius:4px;padding:16px 18px;color:var(--offwhite);font-family:'DM Sans',sans-serif;font-size:18px;text-align:center;outline:none;transition:border-color 0.2s}
+.login-box input:focus{border-color:var(--gold)}
+.login-box input::placeholder{color:rgba(242,237,228,0.15)}
+.login-box .login-btn{width:100%;margin-top:14px;background:var(--gold);color:var(--black);border:none;border-radius:4px;padding:16px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;transition:background 0.2s}
+.login-box .login-btn:hover{background:#e0bb60}
+.login-box .login-btn:disabled{opacity:0.3;cursor:default}
+.login-error{font-size:12px;color:#ff6b6b;margin-top:10px;min-height:18px}
+
+/* ===== NAV ===== */
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(8,8,8,0.95);border-bottom:1px solid var(--border)}
+nav .nav-brand{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:2px;text-decoration:none}
+nav .nav-brand em{font-style:normal;color:var(--offwhite)}
+nav .nav-client{font-size:12px;color:var(--dim);letter-spacing:1px;display:flex;align-items:center;gap:8px}
+nav .nav-client .name{color:var(--gold)}
+nav .nav-logout{background:none;border:1px solid var(--border);color:var(--dim);font-size:10px;letter-spacing:1px;padding:6px 14px;border-radius:3px;cursor:pointer;font-family:inherit;transition:all 0.2s}
+nav .nav-logout:hover{color:var(--gold);border-color:var(--gold-dim)}
+
+/* ===== MAIN ===== */
+.main{padding:20px 24px 100px;max-width:720px;margin:0 auto}
+
+/* ===== HEADER ===== */
+.page-header{margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px}
+.page-header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,36px);letter-spacing:1px}
+.page-header h1 span{color:var(--gold)}
+.page-header .track-count{font-size:12px;color:var(--dim);font-family:monospace}
+
+/* ===== CONSOLE PLAYER ===== */
+.console-player{margin-bottom:20px}
+.console-body{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:4px;overflow:hidden}
+.console-vent{display:flex;gap:3px;padding:8px 12px 0}
+.vent-line{flex:1;height:2px;background:#222;border-radius:1px}
+.console-screen{background:#0a0a12;position:relative;overflow:hidden;border-bottom:1px solid #222;min-height:160px}
+.console-scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,0.015) 2px,rgba(0,255,136,0.015) 4px);pointer-events:none;z-index:5}
+.screen-split{display:flex;height:100%;min-height:160px;position:relative;z-index:3}
+.screen-left{width:35%;min-height:160px;background:#06060e;border-right:1px solid #1a1a1a;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;position:relative}
+.screen-left img{width:100%;height:100%;object-fit:cover;display:none}
+.screen-left img.show{display:block}
+.screen-left .art-ph{font-size:32px;opacity:0.08;user-select:none}
+.screen-right{flex:1;padding:10px 12px;display:flex;flex-direction:column;min-width:0}
+.screen-now{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.screen-now .lbl{font-size:8px;color:var(--dim);letter-spacing:2px;font-family:monospace;opacity:0.6}
+.screen-now .name{font-size:14px;font-weight:400;color:#e8e0d0;word-break:break-word}
+.screen-artist-name{font-size:9px;color:rgba(255,255,255,0.15);margin-bottom:2px;font-family:monospace;letter-spacing:1px}
+.screen-bar{height:3px;background:rgba(255,255,255,0.04);margin:4px 0;border-radius:1px;overflow:hidden;cursor:pointer}
+.screen-bar-fill{height:100%;width:0%;background:var(--gold);border-radius:1px;transition:width 0.1s}
+.screen-time{font-size:8px;color:var(--dim);font-family:monospace;letter-spacing:1px;text-align:right;padding:1px 0}
+
+.console-controls{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;background:#181818;flex-wrap:wrap}
+.ctrl-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:#2a2a2a;border:1px solid #555;color:#aaa;cursor:pointer;font-size:14px;border-radius:50%;transition:all 0.15s;font-family:inherit}
+.ctrl-btn:hover{background:#3a3a3a;color:#fff}
+.ctrl-btn.play-big{width:44px;height:44px;font-size:17px;border-color:rgba(201,168,76,0.2);color:var(--gold)}
+.ctrl-btn.play-big:hover{background:rgba(201,168,76,0.12)}
+.ctrl-btn.stop-b{color:#ff6b6b;border-color:rgba(255,107,107,0.33)}
+.ctrl-side{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.vol-slider{-webkit-appearance:none;width:50px;height:3px;background:#333;border-radius:2px;outline:none;cursor:pointer}
+.vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height:8px;background:var(--gold);border-radius:50%;cursor:pointer;border:none}
+.console-tape{display:flex;align-items:center;gap:8px;padding:5px 12px;background:#141414;border-top:1px solid #222}
+.tape-reel{width:16px;height:16px;border-radius:50%;border:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tape-dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.06)}
+.tape-dot.spin{background:var(--gold);animation:spin 1s linear infinite}
+.tape-label{font-size:8px;color:rgba(255,255,255,0.1);letter-spacing:3px;text-transform:uppercase;flex:1;text-align:center;font-family:monospace}
+.tape-label.active{color:var(--gold)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== TRACK LIST ===== */
+.track-list{display:flex;flex-direction:column;gap:3px;margin-bottom:20px}
+.track-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--mid);border:1px solid #1a1a1a;border-radius:4px;cursor:pointer;transition:all 0.15s}
+.track-item:hover{border-color:#333}
+.track-item.playing{background:rgba(201,168,76,0.04);border-color:rgba(201,168,76,0.15)}
+.track-item .num{font-size:8px;color:rgba(255,255,255,0.08);width:18px;font-family:monospace;flex-shrink:0}
+.track-item .info{flex:1;min-width:0}
+.track-item .info .title{font-size:13px;font-weight:400}
+.track-item .info .meta{font-size:9px;color:var(--dim);margin-top:1px;font-family:monospace}
+.track-item .play-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:4px 6px;flex-shrink:0;font-family:monospace;transition:color 0.15s}
+.track-item .play-btn:hover{color:var(--gold)}
+.track-item .play-btn.playing{color:var(--gold)}
+.no-tracks{text-align:center;padding:40px 16px}
+.no-tracks .icon{font-size:40px;opacity:0.1;margin-bottom:12px}
+.no-tracks p{font-size:14px;color:var(--dim)}
+.no-tracks .sub{font-size:10px;color:rgba(255,255,255,0.06);font-family:monospace;margin-top:4px}
+
+/* ===== LOADING ===== */
+.loading{text-align:center;padding:40px}
+.loading .spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
+.loading p{font-size:12px;color:var(--dim);letter-spacing:1px;font-family:monospace}
+
+/* ===== FEEDBACK SECTION ===== */
+.feedback-section{border-top:1px solid var(--border);padding:20px 0}
+.feedback-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.feedback-header h3{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px}
+.feedback-header h3 span{color:var(--gold)}
+.feedback-header .fb-count{font-size:11px;color:var(--dim)}
+
+.feedback-form{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.feedback-form textarea{width:100%;background:#0a0a0a;border:1px solid #222;border-radius:4px;padding:12px;color:var(--offwhite);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:60px;outline:none;transition:border-color 0.2s}
+.feedback-form textarea:focus{border-color:var(--gold)}
+.feedback-form textarea::placeholder{color:rgba(242,237,228,0.12)}
+.feedback-form .fb-actions{display:flex;gap:8px}
+.feedback-form .fb-time-btn{background:var(--mid);border:1px solid #222;color:var(--dim);border-radius:3px;padding:8px 14px;cursor:pointer;font-size:10px;font-family:monospace;letter-spacing:1px;transition:all 0.15s;white-space:nowrap}
+.feedback-form .fb-time-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.feedback-form .fb-time-btn.active{background:rgba(201,168,76,0.08);border-color:var(--gold-dim);color:var(--gold)}
+.feedback-form .fb-submit{background:var(--gold);color:var(--black);border:none;border-radius:3px;padding:8px 20px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;transition:background 0.2s;flex:1}
+.feedback-form .fb-submit:hover{background:#e0bb60}
+.feedback-form .fb-submit:disabled{opacity:0.3;cursor:default}
+
+.fb-list{display:flex;flex-direction:column;gap:6px}
+.fb-item{display:flex;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.03);border-radius:4px}
+.fb-item .fb-ts{color:var(--gold);font-family:monospace;font-size:10px;flex-shrink:0;padding-top:1px;min-width:48px}
+.fb-item .fb-body{flex:1;min-width:0}
+.fb-item .fb-body .fb-text{font-size:12px;color:rgba(242,237,228,0.7);line-height:1.5;word-break:break-word}
+.fb-item .fb-body .fb-meta{font-size:9px;color:rgba(242,237,228,0.15);margin-top:4px;font-family:monospace}
+.fb-empty{text-align:center;padding:16px;font-size:11px;color:rgba(242,237,228,0.1);font-family:monospace;letter-spacing:1px}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--black);padding:10px 24px;border-radius:4px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;font-family:'DM Sans',sans-serif}
+.toast.show{opacity:1}
+
+@media(max-width:600px){
+  .main{padding:16px 12px 100px}
+  .screen-left{width:28%;min-height:120px}
+  .screen-right{padding:8px 10px}
+  .screen-now .name{font-size:13px}
+  .console-controls{gap:6px}
+  nav{padding:10px 14px}
+  .feedback-form textarea{min-height:50px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="logo">Feed-<span style="color:var(--offwhite)">Play</span></div>
+    <div class="tagline">&#9679; Private listening &amp; feedback</div>
+    <label>Enter your name to access your tracks</label>
+    <input type="text" id="loginName" placeholder="e.g. Koffee" autocomplete="off" autofocus>
+    <button class="login-btn" id="loginBtn">View My Tracks</button>
+    <div style="margin-top:16px;font-size:10px;color:var(--dim);font-family:monospace;letter-spacing:1px">
+      <span id="dbStatus" style="color:#ff6b6b">&#9679; Dropbox not connected</span>
+      <span style="cursor:pointer;color:var(--gold);margin-left:8px" id="dbSettingsBtn">&#9881; Setup</span>
+    </div>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="https://tyrelmnation.github.io/Tyrelm/" class="nav-brand">Tyrelm<em> Nation</em></a>
+  <div class="nav-client" id="navClient" style="display:none">
+    <span>Listening as</span>
+    <span class="name" id="navName"></span>
+    <button class="nav-logout" id="logoutBtn">&#9664; Back</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main" id="mainContent" style="display:none">
+  <div class="page-header">
+    <h1>Your <span>Tracks</span></h1>
+    <div class="track-count" id="trackCount"></div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Loading your tracks...</p>
+  </div>
+
+  <!-- NO TRACKS -->
+  <div class="no-tracks" id="noTracks" style="display:none">
+    <div class="icon">&#9835;</div>
+    <p>No tracks found for this name</p>
+    <div class="sub">Make sure the artist has shared tracks with you</div>
+  </div>
+
+  <!-- CONSOLE PLAYER -->
+  <div class="console-player" id="consolePlayer" style="display:none">
+    <div class="console-body">
+      <div class="console-vent"><div class="vent-line"></div><div class="vent-line"></div><div class="vent-line"></div><div class="vent-line"></div></div>
+      <div class="console-screen">
+        <div class="console-scanlines"></div>
+        <div class="screen-split">
+          <div class="screen-left" id="screenLeft"><div class="art-ph" id="artPh">&#9835;</div><img id="artImg" src=""></div>
+          <div class="screen-right">
+            <div class="screen-now"><span class="lbl">NOW</span><span class="name" id="npTrack">—</span></div>
+            <div class="screen-artist-name" id="npArtist"></div>
+            <div class="screen-bar" id="screenBar"><div class="screen-bar-fill" id="screenBarFill"></div></div>
+            <div class="screen-time" id="screenTime">--:-- / --:--</div>
+          </div>
+        </div>
+      </div>
+      <div class="console-controls">
+        <div class="ctrl-side"><input class="vol-slider" id="volSlider" type="range" min="0" max="100" value="80"></div>
+        <button class="ctrl-btn stop-b" id="btnStop">&#9632;</button>
+        <button class="ctrl-btn play-big" id="btnPlayPause">&#9654;</button>
+        <button class="ctrl-btn" id="btnRewind">&#9664;&#9664;</button>
+        <button class="ctrl-btn" id="btnForward">&#9654;&#9654;</button>
+      </div>
+      <div class="console-tape"><div class="tape-reel"><div class="tape-dot" id="reelL"></div></div><span class="tape-label" id="tapeLabel">SELECT A TRACK</span><div class="tape-reel"><div class="tape-dot" id="reelR"></div></div></div>
+    </div>
+  </div>
+
+  <!-- TRACK LIST -->
+  <div class="track-list" id="trackList"></div>
+
+  <!-- FEEDBACK -->
+  <div class="feedback-section" id="feedbackSection" style="display:none">
+    <div class="feedback-header">
+      <h3>Feedback &mdash; <span id="fbTrackTitle">Track</span></h3>
+      <div class="fb-count" id="fbCount">0 comments</div>
+    </div>
+    <div class="feedback-form">
+      <textarea id="fbInput" placeholder="Type your feedback... (tap timestamp button to mark a moment)"></textarea>
+      <div class="fb-actions">
+        <button class="fb-time-btn" id="fbTimeBtn">&#9200; Mark Time</button>
+        <button class="fb-submit" id="fbSubmit">Send Feedback</button>
+      </div>
+    </div>
+    <div class="fb-list" id="fbList">
+      <div class="fb-empty" id="fbEmpty">No feedback yet</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== FIREBASE CONFIG =====
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCPB_KVD1VYr0mAvl32V5SBGOxJ0IRRuqU",
+  authDomain: "tyrelm-gamechanger.firebaseapp.com",
+  projectId: "tyrelm-gamechanger",
+  storageBucket: "tyrelm-gamechanger.firebasestorage.app",
+  messagingSenderId: "447735146927",
+  appId: "1:447735146927:web:1e5436a97043494744e75a"
+};
+
+let RTDB = null;
+let FB_ENABLED = false;
+
+try {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  RTDB = firebase.database();
+  FB_ENABLED = true;
+  firebase.auth().signInAnonymously().catch(function(){});
+} catch(e) { console.log('Firebase init fail', e); }
+
+// ===== STATE =====
+let clientName = '';
+let tracks = [];
+let curAudio = null;
+let curTrackIdx = -1;
+let isPlaying = false;
+let fbTrackId = null;
+let fbTimeStamp = null;
+
+// ===== DROPBOX SETTINGS MODAL =====
+(function() {
+  var modal = document.createElement('div');
+  modal.id = 'dbModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(8,8,8,0.95);display:none;align-items:center;justify-content:center;padding:24px';
+  modal.innerHTML = '<div style="background:var(--mid);border:1px solid var(--gold);border-radius:4px;padding:32px;max-width:480px;width:100%;position:relative">' +
+    '<button id="dbModalClose" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;line-height:1">\u2715</button>' +
+    '<h3 style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--gold);margin-bottom:16px;letter-spacing:1px">Dropbox Setup</h3>' +
+    '<div style="font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:20px">' +
+      '1. Go to <a href="https://www.dropbox.com/developers/apps" target="_blank" style="color:var(--gold)">Dropbox Developer Console</a><br>' +
+      '2. Create an app with <strong>Scoped Access</strong> &rarr; <strong>Full Dropbox</strong><br>' +
+      '3. Under <strong>Permissions</strong>, enable <code>files.metadata.read</code> and <code>files.content.read</code><br>' +
+      '4. Generate an <strong>Access token</strong> and paste it below<br>' +
+      '5. Create a folder <strong>/Samplify/{ClientName}/</strong> with audio files' +
+    '</div>' +
+    '<label style="display:block;font-size:10px;color:var(--dim);letter-spacing:2px;margin-bottom:6px">DROPBOX ACCESS TOKEN</label>' +
+    '<input type="password" id="dbTokenInput" style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:3px;padding:12px;color:var(--offwhite);font-family:monospace;font-size:11px;outline:none;margin-bottom:12px" placeholder="sl.Ai4...">' +
+    '<button id="dbTokenSave" style="width:100%;background:var(--gold);color:var(--black);border:none;border-radius:3px;padding:12px;font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer">Save Token</button>' +
+    '<div id="dbTokenStatus" style="font-size:11px;margin-top:8px;min-height:16px;font-family:monospace;text-align:center"></div>' +
+  '</div>';
+  document.body.appendChild(modal);
+
+  document.getElementById('dbSettingsBtn').addEventListener('click', function() {
+    document.getElementById('dbTokenInput').value = localStorage.getItem('feedplay_db_token') || '';
+    document.getElementById('dbTokenStatus').textContent = '';
+    modal.style.display = 'flex';
+  });
+  document.getElementById('dbModalClose').addEventListener('click', function() { modal.style.display = 'none'; });
+  modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
+  document.getElementById('dbTokenSave').addEventListener('click', function() {
+    var token = document.getElementById('dbTokenInput').value.trim();
+    if (!token) { document.getElementById('dbTokenStatus').textContent = 'Please enter a token'; return; }
+    localStorage.setItem('feedplay_db_token', token);
+    document.getElementById('dbTokenStatus').textContent = '\u2713 Token saved!';
+    document.getElementById('dbTokenStatus').style.color = 'var(--green)';
+    updateDbStatus();
+    setTimeout(function() { modal.style.display = 'none'; }, 800);
+  });
+})();
+
+function updateDbStatus() {
+  var el = document.getElementById('dbStatus');
+  var token = localStorage.getItem('feedplay_db_token');
+  if (token) { el.textContent = '\u25CF Dropbox connected'; el.style.color = '#00ff88'; }
+  else { el.textContent = '\u25CF Dropbox not connected'; el.style.color = '#ff6b6b'; }
+}
+updateDbStatus();
+
+// ===== DROPBOX API =====
+// Folder structure: /Samplify/{ClientName}/*.m4a, *.mp3, *.wav, *.flac
+
+function getDropboxToken() {
+  return localStorage.getItem('feedplay_db_token');
+}
+
+function dropboxHeaders() {
+  var token = getDropboxToken();
+  if (!token) return null;
+  return {
+    'Authorization': 'Bearer ' + token,
+    'Content-Type': 'application/json'
+  };
+}
+
+function listDropboxFolder(path) {
+  var headers = dropboxHeaders();
+  if (!headers) return Promise.reject(new Error('No Dropbox token'));
+  return fetch('https://api.dropboxapi.com/2/files/list_folder', {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify({ path: path, recursive: false })
+  }).then(function(r){ return r.json(); });
+}
+
+function getDropboxTemporaryLink(path) {
+  var headers = dropboxHeaders();
+  if (!headers) return Promise.reject(new Error('No Dropbox token'));
+  return fetch('https://api.dropboxapi.com/2/files/get_temporary_link', {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify({ path: path })
+  }).then(function(r){ return r.json(); });
+}
+
+function loadTracksForClient(name) {
+  var folder = '/Samplify/' + name;
+  return listDropboxFolder(folder).then(function(data) {
+    if (data.error) {
+      if (data.error['.tag'] === 'path') {
+        return [];  // Folder doesn't exist = no tracks
+      }
+      throw new Error(data.error_summary || 'Dropbox error');
+    }
+    var entries = data.entries || [];
+    var audioExts = ['.m4a', '.mp3', '.wav', '.flac', '.ogg', '.aac', '.m4a'];
+    var audioFiles = entries.filter(function(e) {
+      if (e['.tag'] !== 'file') return false;
+      var ext = e.name.toLowerCase().substring(e.name.lastIndexOf('.'));
+      return audioExts.indexOf(ext) !== -1;
+    });
+    return Promise.all(audioFiles.map(function(file) {
+      var title = file.name.replace(/\.[^/.]+$/, '');
+      return getDropboxTemporaryLink(file.path_lower).then(function(linkData) {
+        if (linkData.error) return null;
+        return { title: title, url: linkData.link, path: file.path_lower };
+      }).catch(function(){ return null; });
+    })).then(function(results) {
+      return results.filter(function(t) { return t !== null; });
+    });
+  }).catch(function(err) {
+    if (err.message === 'No Dropbox token') return [];
+    console.error('Dropbox error:', err);
+    return [];
+  });
+}
+
+// ===== LOGIN =====
+document.getElementById('loginBtn').addEventListener('click', function() {
+  doLogin();
+});
+document.getElementById('loginName').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+
+function doLogin() {
+  var name = document.getElementById('loginName').value.trim();
+  if (!name) { showLoginError('Please enter your name'); return; }
+  document.getElementById('loginBtn').disabled = true;
+  document.getElementById('loginBtn').textContent = 'Loading...';
+  showLoginError('');
+  clientName = name;
+  loadTracksForClient(name).then(function(tracksData) {
+    document.getElementById('loginBtn').disabled = false;
+    document.getElementById('loginBtn').textContent = 'View My Tracks';
+    tracks = tracksData;
+    if (tracks.length === 0) {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('mainContent').style.display = 'block';
+      document.getElementById('navClient').style.display = 'flex';
+      document.getElementById('navName').textContent = name;
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('noTracks').style.display = 'block';
+      document.getElementById('consolePlayer').style.display = 'none';
+      document.getElementById('feedbackSection').style.display = 'none';
+      document.getElementById('trackCount').textContent = '0 tracks';
+      return;
+    }
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('mainContent').style.display = 'block';
+    document.getElementById('navClient').style.display = 'flex';
+    document.getElementById('navName').textContent = name;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('noTracks').style.display = 'none';
+    document.getElementById('consolePlayer').style.display = 'block';
+    document.getElementById('trackCount').textContent = tracks.length + ' track' + (tracks.length > 1 ? 's' : '');
+    renderTracks();
+  }).catch(function(err) {
+    document.getElementById('loginBtn').disabled = false;
+    document.getElementById('loginBtn').textContent = 'View My Tracks';
+    showLoginError('Could not load tracks. Check your name or contact the artist.');
+  });
+}
+
+function showLoginError(msg) {
+  document.getElementById('loginError').textContent = msg;
+}
+
+// ===== LOGOUT =====
+document.getElementById('logoutBtn').addEventListener('click', function() {
+  stopAudio();
+  clientName = '';
+  tracks = [];
+  curTrackIdx = -1;
+  fbTrackId = null;
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('navClient').style.display = 'none';
+  document.getElementById('loginName').value = '';
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginBtn').textContent = 'View My Tracks';
+});
+
+// ===== RENDER TRACKS =====
+function renderTracks() {
+  var el = document.getElementById('trackList');
+  el.innerHTML = '';
+  tracks.forEach(function(t, i) {
+    var d = document.createElement('div');
+    d.className = 'track-item' + (i === curTrackIdx ? ' playing' : '');
+    d.innerHTML = '<span class="num">' + (i + 1) + '</span>' +
+      '<div class="info"><div class="title">' + t.title + '</div><div class="meta">' + clientName + '</div></div>' +
+      '<button class="play-btn' + (i === curTrackIdx && isPlaying ? ' playing' : '') + '">' + (i === curTrackIdx && isPlaying ? '\u25A0' : '\u25B6') + '</button>';
+    d.querySelector('.play-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleTrack(i);
+    });
+    d.addEventListener('click', function(e) {
+      if (!e.target.closest('.play-btn')) toggleTrack(i);
+    });
+    el.appendChild(d);
+  });
+}
+
+// ===== PLAYER =====
+function toggleTrack(idx) {
+  if (curTrackIdx === idx && curAudio) {
+    if (isPlaying) {
+      curAudio.pause();
+      isPlaying = false;
+    } else {
+      curAudio.play().catch(function(){});
+      isPlaying = true;
+    }
+    updatePlayerUI();
+    return;
+  }
+  stopAudio();
+  curTrackIdx = idx;
+  var track = tracks[idx];
+  if (!track || !track.url) return;
+  var a = new Audio(track.url);
+  a.volume = parseInt(document.getElementById('volSlider').value) / 100;
+  a.play().catch(function(){});
+  curAudio = a;
+  isPlaying = true;
+  document.getElementById('npTrack').textContent = track.title;
+  document.getElementById('npArtist').textContent = clientName;
+  document.getElementById('tapeLabel').textContent = track.title;
+  document.getElementById('tapeLabel').className = 'tape-label active';
+  document.getElementById('reelL').className = 'tape-dot spin';
+  document.getElementById('reelR').className = 'tape-dot spin';
+  document.getElementById('npLabel').textContent = 'NOW';
+  var img = document.getElementById('artImg');
+  img.className = '';
+  document.getElementById('artPh').style.display = 'block';
+  updatePlayerUI();
+  loadFeedback(track.title);
+  a.ontimeupdate = function() {
+    if (a.duration) {
+      document.getElementById('screenBarFill').style.width = (a.currentTime / a.duration * 100) + '%';
+      var cm = Math.floor(a.currentTime / 60), cs = Math.floor(a.currentTime % 60);
+      var dm = Math.floor(a.duration / 60), ds = Math.floor(a.duration % 60);
+      document.getElementById('screenTime').textContent =
+        String(cm).padStart(2,'0') + ':' + String(cs).padStart(2,'0') + ' / ' +
+        String(dm).padStart(2,'0') + ':' + String(ds).padStart(2,'0');
+    }
+  };
+  a.onended = function() {
+    stopAudio();
+    if (curTrackIdx < tracks.length - 1) {
+      toggleTrack(curTrackIdx + 1);
+    }
+  };
+}
+
+function stopAudio() {
+  if (curAudio) { curAudio.pause(); curAudio = null; }
+  isPlaying = false;
+  curTrackIdx = -1;
+  document.getElementById('npTrack').textContent = '\u2014';
+  document.getElementById('npArtist').textContent = '';
+  document.getElementById('tapeLabel').textContent = 'SELECT A TRACK';
+  document.getElementById('tapeLabel').className = 'tape-label';
+  document.getElementById('reelL').className = 'tape-dot';
+  document.getElementById('reelR').className = 'tape-dot';
+  document.getElementById('screenBarFill').style.width = '0%';
+  document.getElementById('screenTime').textContent = '--:-- / --:--';
+}
+
+function updatePlayerUI() {
+  renderTracks();
+  var btn = document.getElementById('btnPlayPause');
+  btn.textContent = isPlaying ? '\u25A0' : '\u25B6';
+  if (curAudio && isPlaying) {
+    document.getElementById('reelL').className = 'tape-dot spin';
+    document.getElementById('reelR').className = 'tape-dot spin';
+    document.getElementById('tapeLabel').className = 'tape-label active';
+  }
+}
+
+// ===== CONTROLS =====
+document.getElementById('btnPlayPause').addEventListener('click', function() {
+  if (curAudio) {
+    if (isPlaying) { curAudio.pause(); isPlaying = false; }
+    else { curAudio.play().catch(function(){}); isPlaying = true; }
+    updatePlayerUI();
+  } else if (tracks.length > 0) {
+    toggleTrack(0);
+  }
+});
+document.getElementById('btnStop').addEventListener('click', function() {
+  stopAudio();
+  updatePlayerUI();
+});
+document.getElementById('btnRewind').addEventListener('click', function() {
+  if (curAudio && curAudio.currentTime > 3) curAudio.currentTime -= 5;
+  else if (curAudio) curAudio.currentTime = 0;
+});
+document.getElementById('btnForward').addEventListener('click', function() {
+  if (curAudio && curAudio.duration) curAudio.currentTime = Math.min(curAudio.duration, curAudio.currentTime + 5);
+});
+document.getElementById('volSlider').addEventListener('input', function() {
+  if (curAudio) curAudio.volume = this.value / 100;
+});
+document.getElementById('screenBar').addEventListener('click', function(e) {
+  if (!curAudio || !curAudio.duration) return;
+  curAudio.currentTime = ((e.clientX - this.getBoundingClientRect().left) / this.offsetWidth) * curAudio.duration;
+});
+
+// ===== FEEDBACK =====
+function loadFeedback(trackTitle) {
+  fbTrackId = trackTitle;
+  document.getElementById('fbTrackTitle').textContent = trackTitle;
+  document.getElementById('fbInput').value = '';
+  fbTimeStamp = null;
+  document.getElementById('fbTimeBtn').classList.remove('active');
+  document.getElementById('feedbackSection').style.display = 'block';
+  if (!FB_ENABLED) {
+    document.getElementById('fbList').innerHTML = '<div class="fb-empty">Feedback unavailable</div>';
+    document.getElementById('fbCount').textContent = '0 comments';
+    return;
+  }
+  var slug = (clientName + '_' + trackTitle).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'unknown';
+  RTDB.ref('feedplay_feedback/' + slug).once('value').then(function(snap) {
+    var data = snap.val();
+    var comments = data ? Object.values(data) : [];
+    comments.sort(function(a, b) { return (a.time || 0) - (b.time || 0); });
+    renderFeedback(comments);
+  }).catch(function(){
+    document.getElementById('fbList').innerHTML = '<div class="fb-empty">Feedback unavailable</div>';
+  });
+}
+
+function renderFeedback(comments) {
+  var el = document.getElementById('fbList');
+  document.getElementById('fbCount').textContent = comments.length + ' comment' + (comments.length !== 1 ? 's' : '');
+  if (!comments.length) {
+    el.innerHTML = '<div class="fb-empty">No feedback yet &mdash; be the first!</div>';
+    return;
+  }
+  el.innerHTML = comments.map(function(c) {
+    var timeStr = '';
+    if (c.timestamp != null) {
+      var m = Math.floor(c.timestamp / 60), s = Math.floor(c.timestamp % 60);
+      timeStr = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+    var dateStr = c.date || '';
+    return '<div class="fb-item"><div class="fb-ts">' + timeStr + '</div><div class="fb-body"><div class="fb-text">' + escapeHtml(c.text || '') + '</div><div class="fb-meta">' + dateStr + '</div></div></div>';
+  }).join('');
+}
+
+document.getElementById('fbTimeBtn').addEventListener('click', function() {
+  if (!curAudio) return;
+  var t = curAudio.currentTime;
+  if (t == null || isNaN(t)) return;
+  fbTimeStamp = t;
+  this.classList.add('active');
+  var m = Math.floor(t / 60), s = Math.floor(t % 60);
+  this.textContent = '\u9200 ' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+});
+
+document.getElementById('fbSubmit').addEventListener('click', function() {
+  var text = document.getElementById('fbInput').value.trim();
+  if (!text || !fbTrackId || !FB_ENABLED) return;
+  var btn = this;
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  var slug = (clientName + '_' + fbTrackId).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'unknown';
+  var comment = {
+    text: text,
+    clientName: clientName,
+    timestamp: fbTimeStamp,
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  };
+  RTDB.ref('feedplay_feedback/' + slug).push(comment).then(function() {
+    document.getElementById('fbInput').value = '';
+    btn.disabled = false;
+    btn.textContent = 'Send Feedback';
+    fbTimeStamp = null;
+    document.getElementById('fbTimeBtn').classList.remove('active');
+    document.getElementById('fbTimeBtn').textContent = '\u9200 Mark Time';
+    showToast('Feedback sent!');
+    loadFeedback(fbTrackId);
+  }).catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Send Feedback';
+    showToast('Error sending feedback');
+  });
+});
+
+// ===== HELPERS =====
+function escapeHtml(s) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(s));
+  return div.innerHTML;
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+// ===== CHECK FOR EXISTING TOKEN =====
+(function() {
+  var token = localStorage.getItem('feedplay_db_token');
+  if (!token) {
+    // Show a notice about setup
+    console.log('Samplify: Set up your Dropbox token');
+  }
+})();
+</script>
+</body>
+</html>
